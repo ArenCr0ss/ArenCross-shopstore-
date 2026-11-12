@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arencross-shopstore | CD. JUÁREZ, CHIH.</title>
-    <!-- Tailwind CSS para diseño moderno -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -28,106 +28,103 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-brand-light text-brand-dark font-sans antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-brand-light text-brand-dark font-sans antialiased min-h-screen flex flex-col justify-between pb-16">
 
-    <!-- HEADER ESTILO MERCADO LIBRE (Negro, Rosa, Blanco) -->
+    <!-- HEADER ESTILO MERCADO LIBRE -->
     <header class="bg-brand-dark sticky top-0 z-40 shadow-md">
-        <!-- Barra superior principal -->
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2 md:gap-4">
+        <div class="max-w-7xl mx-auto px-3 py-2.5 flex items-center justify-between gap-2">
             
             <!-- Logo y Ubicación (3 clics para Admin) -->
-            <div class="flex items-center gap-3 cursor-pointer select-none" id="admin-trigger" title="Arencross-shopstore">
-                <div class="bg-brand-pink text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg">
+            <div class="flex items-center gap-2 cursor-pointer select-none" id="admin-trigger" title="Arencross-shopstore">
+                <div class="bg-brand-pink text-white w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg shadow-lg">
                     A
                 </div>
                 <div>
-                    <h1 class="text-white font-black text-base md:text-xl tracking-tight">Arencross<span class="text-brand-pink">-shopstore</span></h1>
-                    <p class="text-xs text-pink-300 font-medium flex items-center gap-1">
+                    <h1 class="text-white font-black text-sm md:text-lg tracking-tight">Arencross<span class="text-brand-pink">-shopstore</span></h1>
+                    <p class="text-[10px] text-pink-300 font-medium flex items-center gap-1">
                         <i class="fa-solid fa-location-dot"></i> CD. JUÁREZ, CHIH.
                     </p>
                 </div>
             </div>
 
             <!-- Buscador Central -->
-            <div class="flex-1 max-w-xl mx-2">
+            <div class="flex-1 max-w-xs mx-1">
                 <div class="relative flex items-center">
-                    <input type="text" id="search-input" placeholder="Buscar mallas, tenis, playeras..." 
-                        class="w-full bg-white text-brand-dark text-sm rounded-lg pl-4 pr-10 py-2 shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-pink">
-                    <button class="absolute right-3 text-gray-400 hover:text-brand-pink">
+                    <input type="text" id="search-input" placeholder="Buscar..." 
+                        class="w-full bg-white text-brand-dark text-xs rounded-lg pl-3 pr-8 py-1.5 shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-pink">
+                    <button class="absolute right-2 text-gray-400 hover:text-brand-pink text-xs">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Botón Carrito -->
-            <div class="flex items-center gap-3">
-                <button onclick="toggleCart()" class="relative bg-zinc-800 hover:bg-zinc-700 text-white p-2.5 rounded-xl transition flex items-center gap-2">
-                    <i class="fa-solid fa-cart-shopping text-brand-pink text-lg"></i>
-                    <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-brand-pink text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+            <div class="flex items-center">
+                <button onclick="toggleCart()" class="relative bg-zinc-800 hover:bg-zinc-700 text-white p-2 rounded-xl transition flex items-center gap-1">
+                    <i class="fa-solid fa-cart-shopping text-brand-pink text-base"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-brand-pink text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow">0</span>
                 </button>
             </div>
         </div>
 
-        <!-- Barra de Categorías / Filtros -->
-        <div class="bg-zinc-900 border-t border-zinc-800 px-4 py-2">
-            <div class="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto hide-scrollbar text-xs md:text-sm text-gray-300 whitespace-nowrap">
-                <button onclick="filterCategory('todos')" class="cat-btn text-brand-pink font-bold hover:text-white transition py-1 px-2 rounded bg-zinc-800">Todo el Catálogo</button>
-                <button onclick="filterCategory('Mallas')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Mallas</button>
-                <button onclick="filterCategory('Tenis Hombre')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Tenis Hombre</button>
-                <button onclick="filterCategory('Tenis Mujer')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Tenis Mujer</button>
-                <button onclick="filterCategory('Playeras Hombre')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Playeras Hombre</button>
+        <!-- Barra de Categorías -->
+        <div class="bg-zinc-900 border-t border-zinc-800 px-3 py-1.5">
+            <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto hide-scrollbar text-xs text-gray-300 whitespace-nowrap">
+                <button onclick="filterCategory('todos')" class="cat-btn text-brand-pink font-bold hover:text-white transition py-0.5 px-2 rounded bg-zinc-800">Todo</button>
+                <button onclick="filterCategory('Mallas')" class="cat-btn hover:text-brand-pink transition py-0.5 px-2">Mallas</button>
+                <button onclick="filterCategory('Tenis Hombre')" class="cat-btn hover:text-brand-pink transition py-0.5 px-2">Tenis Hombre</button>
+                <button onclick="filterCategory('Tenis Mujer')" class="cat-btn hover:text-brand-pink transition py-0.5 px-2">Tenis Mujer</button>
+                <button onclick="filterCategory('Playeras Hombre')" class="cat-btn hover:text-brand-pink transition py-0.5 px-2">Playeras Hombre</button>
             </div>
         </div>
     </header>
 
-    <!-- CUERPO / CATÁLOGO DE PRODUCTOS -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
-        <div class="flex justify-between items-center mb-6">
-            <h2 id="current-category-title" class="text-xl md:text-2xl font-extrabold text-brand-dark">Catálogo Exclusivo</h2>
-            <span class="text-xs text-gray-500 font-semibold bg-white px-3 py-1 rounded-full shadow-sm">Envíos Locales y Nacionales (México)</span>
+    <!-- CUERPO / CATÁLOGO -->
+    <main class="max-w-7xl mx-auto px-3 py-4 flex-1 w-full">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="current-category-title" class="text-base md:text-xl font-extrabold text-brand-dark">Catálogo Exclusivo</h2>
+            <span class="text-[10px] text-gray-500 font-semibold bg-white px-2 py-0.5 rounded-full shadow-sm">México & Juárez</span>
         </div>
 
-        <!-- Grid de Productos -->
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            <!-- Los productos se cargan dinámicamente -->
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <!-- Productos -->
         </div>
     </main>
 
-    <!-- MODAL VISTA DE PRODUCTO -->
-    <div id="product-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl my-8">
-            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark text-xl font-bold bg-gray-100 hover:bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center">
+    <!-- MODAL VISTA PRODUCTO -->
+    <div id="product-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-4 relative shadow-2xl my-auto">
+            <button onclick="closeProductModal()" class="absolute top-3 right-3 text-gray-400 hover:text-brand-dark text-base font-bold bg-gray-100 w-7 h-7 rounded-full flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div id="modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Contenido inyectado por JS -->
+            <div id="modal-content" class="grid grid-cols-1 gap-4">
+                <!-- Inyectado por JS -->
             </div>
         </div>
     </div>
 
-    <!-- PANEL DE ADMINISTRADOR PRIVADO -->
-    <div id="admin-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-3 overflow-y-auto">
-        <div class="bg-white rounded-xl max-w-md w-full p-4 relative shadow-2xl my-4 text-xs md:text-sm">
-            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
-                <h3 class="font-black text-base text-brand-dark flex items-center gap-2">
+    <!-- PANEL DE ADMINISTRADOR COMPACTO Y CORREGIDO -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-2 overflow-y-auto">
+        <div class="bg-white rounded-xl max-w-sm w-full p-3 relative shadow-2xl my-auto text-xs">
+            <div class="flex justify-between items-center mb-2 pb-1.5 border-b border-gray-200">
+                <h3 class="font-black text-sm text-brand-dark flex items-center gap-1.5">
                     <i class="fa-solid fa-lock text-brand-pink"></i> Panel Admin - Arencross
                 </h3>
-                <button onclick="closeAdminPanel()" class="text-gray-400 hover:text-brand-dark text-lg font-bold px-2 py-1">
+                <button onclick="closeAdminPanel()" class="text-gray-400 hover:text-brand-dark text-base font-bold px-1.5 py-0.5">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Formulario de Producto -->
-            <form id="product-form" onsubmit="saveProduct(event)" class="space-y-2.5">
+            <form id="product-form" onsubmit="saveProduct(event)" class="space-y-2">
                 <input type="hidden" id="prod-id">
                 <div>
-                    <label class="block font-bold text-gray-700 mb-0.5">Nombre del Producto</label>
-                    <input type="text" id="prod-name" required class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none">
+                    <label class="block font-bold text-gray-700 text-[11px] mb-0.5">Nombre del Producto</label>
+                    <input type="text" id="prod-name" required class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-brand-pink focus:outline-none">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block font-bold text-gray-700 mb-0.5">Categoría</label>
-                        <select id="prod-cat" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none bg-white">
+                        <label class="block font-bold text-gray-700 text-[11px] mb-0.5">Categoría</label>
+                        <select id="prod-cat" class="w-full border border-gray-300 rounded px-1.5 py-1 text-xs bg-white focus:outline-none">
                             <option value="Mallas">Mallas</option>
                             <option value="Tenis Hombre">Tenis Hombre</option>
                             <option value="Tenis Mujer">Tenis Mujer</option>
@@ -135,61 +132,60 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block font-bold text-gray-700 mb-0.5">Precio ($ MXN)</label>
-                        <input type="number" id="prod-price" required class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none">
+                        <label class="block font-bold text-gray-700 text-[11px] mb-0.5">Precio ($ MXN)</label>
+                        <input type="number" id="prod-price" required class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none">
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 mb-0.5">Imagen (Sube archivo de tu cel o URL)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="prod-img" placeholder="https://... o selecciona archivo" class="flex-1 border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none text-xs">
-                        <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="text-xs w-28 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-brand-pink hover:file:bg-pink-100">
+                    <label class="block font-bold text-gray-700 text-[11px] mb-0.5">Imagen (URL o Archivo)</label>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="prod-img" placeholder="https://..." class="flex-1 border border-gray-300 rounded px-2 py-1 text-[11px] focus:outline-none">
+                        <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="text-[10px] w-24 file:py-0.5 file:px-1 file:rounded file:border-0 file:text-[10px] file:font-semibold file:bg-pink-50 file:text-brand-pink">
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 mb-0.5">Descripción</label>
-                    <textarea id="prod-desc" rows="2" class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none"></textarea>
+                    <label class="block font-bold text-gray-700 text-[11px] mb-0.5">Descripción</label>
+                    <textarea id="prod-desc" rows="1" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none"></textarea>
                 </div>
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" class="flex-1 bg-brand-pink text-white font-bold py-2 rounded shadow hover:bg-brand-pinkdark transition">Guardar Producto</button>
-                    <button type="button" onclick="resetForm()" class="bg-gray-200 text-gray-700 px-3 py-2 rounded hover:bg-gray-300 font-semibold">Cancelar</button>
+                <div class="flex gap-2 pt-1">
+                    <button type="submit" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs shadow hover:bg-brand-pinkdark transition">Guardar en Catálogo</button>
+                    <button type="button" onclick="resetForm()" class="bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded text-xs font-semibold">Cancelar</button>
                 </div>
             </form>
 
-            <!-- Lista de administración -->
-            <div class="mt-4 pt-3 border-t border-gray-200">
-                <h4 class="font-bold text-gray-800 mb-2">Inventario Actual</h4>
-                <div id="admin-product-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+            <div class="mt-3 pt-2 border-t border-gray-200">
+                <h4 class="font-bold text-gray-800 text-[11px] mb-1.5">Inventario Actual</h4>
+                <div id="admin-product-list" class="space-y-1 max-h-28 overflow-y-auto pr-1"></div>
             </div>
         </div>
     </div>
 
-    <!-- CARRITO Y CHECKOUT MODAL -->
-    <div id="cart-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-lg w-full p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-            <button onclick="toggleCart()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark text-xl font-bold bg-gray-100 hover:bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center">
+    <!-- CARRITO Y CHECKOUT MODAL (SUBIDO PARA EVITAR QUE NETLIFY LO TAPE) -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-4 relative shadow-2xl my-auto mb-12 text-xs">
+            <button onclick="toggleCart()" class="absolute top-3 right-3 text-gray-400 hover:text-brand-dark text-base font-bold bg-gray-100 w-7 h-7 rounded-full flex items-center justify-center">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h3 class="text-xl font-black mb-4 text-brand-dark flex items-center gap-2">
+            <h3 class="text-sm font-black mb-3 text-brand-dark flex items-center gap-1.5">
                 <i class="fa-solid fa-cart-shopping text-brand-pink"></i> Tu Carrito - Arencross
             </h3>
             
-            <div id="cart-items" class="divide-y divide-gray-100 max-h-48 overflow-y-auto mb-4"></div>
+            <div id="cart-items" class="divide-y divide-gray-100 max-h-36 overflow-y-auto mb-3"></div>
 
-            <!-- Cotizador de Envíos SkydropX / México -->
-            <div class="bg-gray-50 p-4 rounded-xl mb-4 border border-gray-200">
-                <h4 class="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5">
+            <!-- Cotizador SkydropX -->
+            <div class="bg-gray-50 p-3 rounded-xl mb-3 border border-gray-200">
+                <h4 class="font-bold text-[11px] text-gray-800 mb-1.5 flex items-center gap-1">
                     <i class="fa-solid fa-truck-fast text-brand-pink"></i> Cotizar Envío (SkydropX México)
                 </h4>
-                <div class="flex gap-2">
-                    <input type="text" id="postal-code" placeholder="Código Postal (Ej. 32000)" maxlength="5" class="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-pink">
-                    <button onclick="calculateShipping()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">Cotizar</button>
+                <div class="flex gap-1.5">
+                    <input type="text" id="postal-code" placeholder="CP (Ej. 32000)" maxlength="5" class="flex-1 bg-white border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none">
+                    <button onclick="calculateShipping()" class="bg-zinc-800 text-white px-3 py-1 rounded text-xs font-bold">Cotizar</button>
                 </div>
-                <div id="shipping-result" class="mt-2 text-xs text-gray-600"></div>
+                <div id="shipping-result" class="mt-1 text-[10px] text-gray-600"></div>
             </div>
 
             <!-- Totales -->
-            <div class="border-t border-gray-200 pt-3 space-y-1 mb-4 text-sm">
+            <div class="border-t border-gray-200 pt-2 space-y-0.5 mb-3">
                 <div class="flex justify-between text-gray-600">
                     <span>Subtotal:</span>
                     <span id="cart-subtotal">$0 MXN</span>
@@ -198,45 +194,172 @@
                     <span>Envío:</span>
                     <span id="cart-shipping-cost">$0 MXN</span>
                 </div>
-                <div class="flex justify-between text-lg font-black text-brand-dark pt-1 border-t border-gray-100">
+                <div class="flex justify-between text-sm font-black text-brand-dark pt-1 border-t border-gray-100">
                     <span>Total a Pagar:</span>
                     <span id="cart-total" class="text-brand-pink">$0 MXN</span>
                 </div>
             </div>
 
-            <!-- Métodos de Pago Nacionales (Con CLABE SPEI Fija) -->
-            <div class="mb-5">
-                <label class="block font-bold text-sm text-gray-700 mb-2">Método de Pago (México - MXN):</label>
-                <div class="grid grid-cols-3 gap-2 mb-3">
-                    <button type="button" onclick="selectPayment('tarjeta')" id="pay-tarjeta" class="p-2 border-2 border-brand-pink bg-pink-50 rounded-xl text-xs font-bold text-center transition">Tarjeta</button>
-                    <button type="button" onclick="selectPayment('spei')" id="pay-spei" class="p-2 border-2 border-gray-200 rounded-xl text-xs font-bold text-center transition">SPEI</button>
-                    <button type="button" onclick="selectPayment('oxxo')" id="pay-oxxo" class="p-2 border-2 border-gray-200 rounded-xl text-xs font-bold text-center transition">OXXO Pay</button>
+            <!-- Métodos de Pago (Con CLABE Fija) -->
+            <div class="mb-3">
+                <label class="block font-bold text-[11px] text-gray-700 mb-1.5">Método de Pago (México - MXN):</label>
+                <div class="grid grid-cols-3 gap-1.5 mb-2">
+                    <button type="button" onclick="selectPayment('tarjeta')" id="pay-tarjeta" class="p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold text-center">Tarjeta</button>
+                    <button type="button" onclick="selectPayment('spei')" id="pay-spei" class="p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold text-center">SPEI</button>
+                    <button type="button" onclick="selectPayment('oxxo')" id="pay-oxxo" class="p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold text-center">OXXO Pay</button>
                 </div>
                 
-                <!-- Caja informativa con la CLABE SPEI fija -->
-                <div id="spei-info-box" class="hidden bg-pink-50 border border-pink-200 p-3 rounded-xl text-xs text-gray-700">
-                    <p class="font-bold text-brand-pink mb-1"><i class="fa-solid fa-building-columns"></i> CLABE Interbancaria SPEI:</p>
-                    <p class="font-mono bg-white p-1.5 rounded border border-pink-100 select-all font-bold text-sm text-center">721180100034025723</p>
-                    <p class="text-[11px] text-gray-500 mt-1">Realiza tu transferencia y envía tu comprobante por WhatsApp.</p>
+                <div id="spei-info-box" class="hidden bg-pink-50 border border-pink-200 p-2 rounded-lg text-[11px] text-gray-700">
+                    <p class="font-bold text-brand-pink mb-0.5"><i class="fa-solid fa-building-columns"></i> CLABE SPEI:</p>
+                    <p class="font-mono bg-white p-1 rounded border border-pink-100 select-all font-bold text-xs text-center">721180100034025723</p>
                 </div>
             </div>
 
-            <button onclick="checkoutOrder()" class="w-full bg-brand-pink hover:bg-brand-pinkdark text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
-                <i class="fa-brands fa-whatsapp text-lg"></i> Confirmar Pedido por WhatsApp
+            <!-- Botón WhatsApp ajustado arriba de la marca de Netlify -->
+            <button onclick="checkoutOrder()" class="w-full bg-brand-pink hover:bg-brand-pinkdark text-white font-bold py-2.5 rounded-xl shadow-lg transition flex items-center justify-center gap-1.5 text-xs mb-2">
+                <i class="fa-brands fa-whatsapp text-base"></i> Confirmar Pedido por WhatsApp
             </button>
         </div>
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-brand-dark text-white mt-12 py-6 border-t border-zinc-800 text-center text-xs">
-        <div class="max-w-7xl mx-auto px-4 space-y-2">
-            <p class="font-bold text-sm">Arencross-shopstore CD. JUÁREZ, CHIH.</p>
-            <p class="text-gray-400">Venta exclusiva en territorio nacional • Envíos seguros con SkydropX • Pagos locales</p>
-            <p class="text-gray-500 pt-2">&copy; 2026 Arencross-shopstore. Todos los derechos reservados.</p>
+    <footer class="bg-brand-dark text-white mt-8 py-4 border-t border-zinc-800 text-center text-[10px]">
+        <div class="max-w-7xl mx-auto px-3 space-y-1">
+            <p class="font-bold text-xs">Arencross-shopstore CD. JUÁREZ, CHIH.</p>
+            <p class="text-gray-400">Venta nacional • Envíos SkydropX • Pagos MXN</p>
         </div>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT -->
+    <!-- JAVASCRIPT -->
     <script>
-        // Catálogo Inicial
-        let products = JSON.parse(localStorage.getItem('arencross_
+        let products = JSON.parse(localStorage.getItem('arencross_products')) || [
+            { id: 1, name: 'Malla Deportiva Compresión Pro', cat: 'Mallas', price: 450, img: 'https://images.unsplash.com/photo-1506152983158-b4a74a01c721?w=500', desc: 'Malla flexible de alta resistencia.' },
+            { id: 2, name: 'Tenis Urbanos Running Hombre', cat: 'Tenis Hombre', price: 1199, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500', desc: 'Comodidad máxima.' },
+            { id: 3, name: 'Tenis Casuales plataforma Mujer', cat: 'Tenis Mujer', price: 980, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500', desc: 'Diseño moderno y ligero.' },
+            { id: 4, name: 'Playera Casual Algodón Hombre', cat: 'Playeras Hombre', price: 320, img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500', desc: 'Algodón 100% transpirable.' }
+        ];
+
+        let cart = [];
+        let currentCategory = 'todos';
+        let selectedPaymentMethod = 'tarjeta';
+        let shippingCost = 0;
+        const WHATSAPP_NUMBER = '52165656548307';
+
+        let clickCount = 0;
+        document.getElementById('admin-trigger').addEventListener('click', () => {
+            clickCount++;
+            if (clickCount >= 3) {
+                clickCount = 0;
+                let pin = prompt("Ingresa tu PIN de Administrador:");
+                if (pin === "1234") openAdminPanel();
+                else if (pin !== null) alert("PIN incorrecto.");
+            }
+            setTimeout(() => { clickCount = 0; }, 1000);
+        });
+
+        function renderProducts(filterCat = 'todos') {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            const filtered = filterCat === 'todos' ? products : products.filter(p => p.cat === filterCat);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs">No hay productos en esta categoría.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                grid.innerHTML += `
+                    <div class="bg-white rounded-lg shadow-sm hover:shadow transition overflow-hidden border border-gray-100 flex flex-col justify-between">
+                        <div class="cursor-pointer" onclick="openProductModal(${p.id})">
+                            <img src="${p.img}" alt="${p.name}" class="w-full h-32 md:h-40 object-cover bg-gray-100">
+                            <div class="p-2.5">
+                                <span class="text-[9px] uppercase font-bold text-brand-pink bg-pink-50 px-1.5 py-0.5 rounded">${p.cat}</span>
+                                <h3 class="font-bold text-xs text-brand-dark mt-1 line-clamp-1">${p.name}</h3>
+                                <div class="mt-1 flex items-center justify-between">
+                                    <span class="text-sm font-black text-brand-dark">$${p.price.toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-2.5 pt-0">
+                            <button onclick="addToCart(${p.id})" class="w-full bg-brand-dark hover:bg-brand-pink text-white font-bold py-1.5 rounded text-[11px] transition flex items-center justify-center gap-1 shadow">
+                                <i class="fa-solid fa-cart-plus"></i> Agregar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.getElementById('current-category-title').innerText = cat === 'todos' ? 'Catálogo Exclusivo' : cat;
+            renderProducts(cat);
+        }
+
+        function convertImageFile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) { document.getElementById('prod-img').value = e.target.result; }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openAdminPanel() { document.getElementById('admin-modal').classList.remove('hidden'); renderAdminList(); }
+        function closeAdminPanel() { document.getElementById('admin-modal').classList.add('hidden'); resetForm(); }
+        function resetForm() { document.getElementById('product-form').reset(); document.getElementById('prod-id').value = ''; }
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-product-list');
+            list.innerHTML = '';
+            products.forEach(p => {
+                list.innerHTML += `
+                    <div class="flex items-center justify-between bg-gray-50 p-1.5 rounded border border-gray-200">
+                        <div class="flex items-center gap-1.5 overflow-hidden">
+                            <img src="${p.img}" class="w-7 h-7 object-cover rounded">
+                            <div class="truncate">
+                                <p class="font-bold text-[11px] truncate">${p.name}</p>
+                                <p class="text-[9px] text-gray-500">$${p.price} MXN</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-1">
+                            <button type="button" onclick="editProduct(${p.id})" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">Editar</button>
+                            <button type="button" onclick="deleteProduct(${p.id})" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('prod-id').value;
+            const name = document.getElementById('prod-name').value;
+            const cat = document.getElementById('prod-cat').value;
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const img = document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+            const desc = document.getElementById('prod-desc').value;
+
+            if (id) {
+                const index = products.findIndex(p => p.id == id);
+                if (index !== -1) products[index] = { id: Number(id), name, cat, price, img, desc };
+            } else {
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({ id: newId, name, cat, price, img, desc });
+            }
+
+            localStorage.setItem('arencross_products', JSON.stringify(products));
+            renderProducts(currentCategory);
+            renderAdminList();
+            resetForm();
+            alert("¡Producto guardado correctamente!");
+        }
+
+        function editProduct(id) {
+            const p = products.find(prod => prod.id === id);
+            if (p) {
+                document.getElementById('prod-id').value = p.id;
+                document.getElementById('prod-name').value = p.name;
+                document.getElementById('prod-cat').value = p.cat;
+                document.getElementById('prod-price').value = p.price;
+                document.getElementById('prod-img').value = p.img;
+                document.getElementById('prod-desc').value = p.desc;
