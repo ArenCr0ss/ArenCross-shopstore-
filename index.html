@@ -1,1927 +1,242 @@
-
 <!DOCTYPE html>
-<html lang="es-MX">
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Arencross-shopstore | CD. JUÁREZ, CHIH. - Tienda Oficial</title>
-  <link rel="manifest" href="/manifest.json">
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            brandBlack: '#0f0f11',
-            brandBlackCard: '#18181b',
-            brandPink: '#ec4899',
-            brandPinkDark: '#db2777',
-            brandPinkLight: '#fdf2f8',
-            brandBg: '#f8f9fa',
-            mlGreen: '#00A650',
-            mlDark: '#0f0f11',
-            mlGray: '#666666',
-          },
-        },
-      },
-    };
-  </script>
-
-  <style>
-    body {
-      background-color: #f8f9fa;
-      color: #0f0f11;
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ec4899;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #db2777;
-    }
-
-    /* Product Image Zoom Effect */
-    .zoom-container {
-      overflow: hidden;
-      position: relative;
-      cursor: zoom-in;
-    }
-    .zoom-container img {
-      transition: transform 0.25s ease-out;
-      transform-origin: center center;
-    }
-    .zoom-container:hover img {
-      transform: scale(1.65);
-    }
-
-    /* OXXO Barcode Simulation */
-    .oxxo-barcode {
-      background: repeating-linear-gradient(
-        to right,
-        #111 0px,
-        #111 2px,
-        #fff 2px,
-        #fff 5px,
-        #111 5px,
-        #111 6px,
-        #fff 6px,
-        #fff 9px,
-        #111 9px,
-        #111 13px,
-        #fff 13px,
-        #fff 15px
-      );
-      height: 54px;
-      width: 100%;
-    }
-  </style>
-</head>
-<body class="antialiased selection:bg-brandPink selection:text-white">
-
-  <!-- TOAST NOTIFICATION CONTAINER (Replaces alert()) -->
-  <div id="toast-container" class="fixed top-20 right-4 z-[9999] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-  <!-- HEADER NEGRO, ROSA Y BLANCO -->
-  <header class="bg-brandBlack text-white sticky top-0 z-40 shadow-md border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 pt-2.5 pb-2">
-      <!-- Top Row: Logo (Secret 3-tap Admin Trigger), Search Bar & Cart -->
-      <div class="flex items-center justify-between gap-3 sm:gap-6">
-        <!-- Brand Logo (Triple-click/tap opens private owner PIN modal) -->
-        <div
-          id="secret-brand-trigger"
-          onclick="handleSecretLogoTap()"
-          class="flex items-center gap-2.5 shrink-0 group cursor-pointer select-none"
-        >
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-brandPink text-white flex items-center justify-center font-extrabold text-xl shadow-sm group-hover:scale-105 transition">
-            A
-          </div>
-          <div class="leading-tight">
-            <span class="font-extrabold text-base sm:text-xl tracking-tight text-white block">
-              Arencross<span class="font-normal text-brandPink">-shopstore</span>
-            </span>
-            <span class="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-white/90 bg-white/10 px-2 py-0.5 rounded-full">
-              <i class="fa-solid fa-location-dot text-brandPink"></i> CD. JUÁREZ, CHIH.
-            </span>
-          </div>
-        </div>
-
-        <!-- Search Input -->
-        <div class="flex-1 max-w-2xl relative hidden md:block">
-          <div class="flex bg-white rounded-lg shadow-sm overflow-hidden border-2 border-transparent focus-within:border-brandPink">
-            <input
-              type="text"
-              id="search-input-desktop"
-              oninput="handleSearch(this.value)"
-              placeholder="Buscar mallas, tenis hombre, tenis mujer, playeras..."
-              class="w-full px-4 py-2.5 text-sm text-brandBlack placeholder-gray-400 focus:outline-none"
-            />
-            <button
-              onclick="handleSearch(document.getElementById('search-input-desktop').value)"
-              class="px-4 text-gray-500 hover:text-brandPink border-l border-gray-200 transition"
-              title="Buscar"
-            >
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Right Controls: Only Cart (Admin button completely hidden from public) -->
-        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button
-            onclick="toggleCart(true)"
-            class="relative p-2.5 rounded-xl bg-white/10 hover:bg-brandPink text-white transition shadow-xs border border-white/10"
-            aria-label="Carrito de compras"
-          >
-            <i class="fa-solid fa-cart-shopping text-lg"></i>
-            <span
-              id="cart-badge"
-              class="absolute -top-1.5 -right-1.5 bg-brandPink text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow border border-brandBlack"
-            >
-              0
-            </span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Mobile Search Input -->
-      <div class="mt-2.5 md:hidden">
-        <div class="flex bg-white rounded-lg shadow-sm overflow-hidden border border-transparent focus-within:border-brandPink">
-          <input
-            type="text"
-            id="search-input-mobile"
-            oninput="handleSearch(this.value)"
-            placeholder="Buscar mallas, tenis, playeras..."
-            class="w-full px-3.5 py-2 text-sm text-brandBlack placeholder-gray-400 focus:outline-none"
-          />
-          <button class="px-3.5 text-gray-500 border-l border-gray-200">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Bottom Sub-navbar: Location & Exclusive Categories -->
-      <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-white/10 text-xs sm:text-sm text-white/90 overflow-x-auto no-scrollbar gap-4">
-        <button
-          onclick="openCpQuickModal()"
-          class="flex items-center gap-1.5 shrink-0 hover:bg-white/10 px-2 py-1 rounded-md transition text-left"
-        >
-          <i class="fa-solid fa-location-dot text-brandPink"></i>
-          <div>
-            <span class="text-[10px] block leading-none text-gray-400">Enviar a</span>
-            <span id="header-cp-display" class="font-semibold text-xs text-white">Cd. Juárez CP 32000</span>
-          </div>
-        </button>
-
-        <!-- Exclusive Categories Pills -->
-        <nav class="flex items-center gap-1.5 sm:gap-2 shrink-0" id="category-nav">
-          <button onclick="filterByCategory('Todos')" data-cat="Todos" class="cat-btn px-3 py-1 rounded-full font-semibold bg-brandPink text-white text-xs transition">
-            Todos
-          </button>
-          <button onclick="filterByCategory('Mallas')" data-cat="Mallas" class="cat-btn px-3 py-1 rounded-full hover:bg-white/10 text-white text-xs transition">
-            Mallas
-          </button>
-          <button onclick="filterByCategory('Tenis Hombre')" data-cat="Tenis Hombre" class="cat-btn px-3 py-1 rounded-full hover:bg-white/10 text-white text-xs transition">
-            Tenis Hombre
-          </button>
-          <button onclick="filterByCategory('Tenis Mujer')" data-cat="Tenis Mujer" class="cat-btn px-3 py-1 rounded-full hover:bg-white/10 text-white text-xs transition">
-            Tenis Mujer
-          </button>
-          <button onclick="filterByCategory('Playeras Hombre')" data-cat="Playeras Hombre" class="cat-btn px-3 py-1 rounded-full hover:bg-white/10 text-white text-xs transition">
-            Playeras Hombre
-          </button>
-        </nav>
-
-        <div class="hidden lg:flex items-center gap-3 shrink-0 text-xs font-medium text-white/80">
-          <span class="inline-flex items-center gap-1.5 text-brandPink font-semibold">
-            <i class="fa-solid fa-shield-halved"></i> Tienda Oficial 100% Mexicana
-          </span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- HERO CAROUSEL BANNER (BLACK, PINK & WHITE) -->
-  <section class="relative bg-gradient-to-b from-brandBlack via-brandBlack/10 to-brandBg pt-3 pb-6">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6">
-      <div class="relative rounded-2xl overflow-hidden shadow-lg bg-brandBlack text-white min-h-[210px] sm:min-h-[270px] flex items-center border border-white/10">
-        <!-- Slide Container -->
-        <div id="hero-slides" class="w-full transition-all duration-500">
-          <!-- Slide 1 -->
-          <div class="hero-slide p-6 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-[#0f0f11] via-[#18181b] to-[#27101d]">
-            <div class="max-w-xl space-y-3 text-center md:text-left">
-              <span class="inline-block bg-brandPink text-white text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full">
-                Entrega Mismo Día en Cd. Juárez
-              </span>
-              <h1 class="text-2xl sm:text-4xl font-extrabold leading-tight">
-                Mallas, Tenis y Playeras <span class="text-brandPink">Exclusivos</span>
-              </h1>
-              <p class="text-sm sm:text-base text-gray-300">
-                Compra directo con <strong class="text-white">Arencross-shopstore</strong>. Envíos locales en Ciudad Juárez y a todo México con <strong class="text-brandPink">SkydropX</strong>.
-              </p>
-              <div class="pt-2 flex flex-wrap justify-center md:justify-start gap-3">
-                <a href="#catalogo" class="bg-brandPink hover:bg-brandPinkDark text-white font-semibold px-5 py-2.5 rounded-lg text-sm transition shadow">
-                  Ver Catálogo Completo
-                </a>
-                <button onclick="openCpQuickModal()" class="bg-white/10 hover:bg-white/20 text-white font-medium px-4 py-2.5 rounded-lg text-sm transition border border-white/15">
-                  <i class="fa-solid fa-truck-fast mr-1.5 text-brandPink"></i> Cotizar Envío por CP
-                </button>
-              </div>
-            </div>
-            <div class="hidden sm:flex items-center justify-center bg-white/5 border border-brandPink/30 rounded-2xl p-5 shrink-0">
-              <div class="text-center space-y-2">
-                <div class="w-16 h-16 mx-auto rounded-full bg-brandPink/20 text-brandPink flex items-center justify-center text-3xl">
-                  <i class="fa-solid fa-bag-shopping"></i>
-                </div>
-                <p class="font-bold text-sm text-white">Despacho Directo</p>
-                <p class="text-xs text-gray-300">Cd. Juárez, Chihuahua<br/>Cobertura Nacional MX</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 2 -->
-          <div class="hero-slide hidden p-6 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-[#18181b] via-[#3b0724] to-[#0f0f11]">
-            <div class="max-w-xl space-y-3 text-center md:text-left">
-              <span class="inline-block bg-white text-brandBlack text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full">
-                Pagos 100% Nacionales MXN
-              </span>
-              <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
-                Paga en Efectivo en <span class="text-brandPink">OXXO</span> o vía <span class="text-brandPink">SPEI</span>
-              </h2>
-              <p class="text-sm sm:text-base text-gray-200">
-                Sin complicaciones ni cargos extranjeros. Genera tu ficha de pago al instante o usa tu tarjeta mexicana.
-              </p>
-              <div class="pt-2">
-                <a href="#catalogo" class="bg-brandPink hover:bg-brandPinkDark text-white font-bold px-5 py-2.5 rounded-lg text-sm transition shadow">
-                  Explorar Colección
-                </a>
-              </div>
-            </div>
-            <div class="hidden sm:flex gap-3 shrink-0">
-              <div class="bg-white text-brandBlack p-4 rounded-xl shadow-lg text-center w-28">
-                <span class="block font-black text-red-600 text-lg">OXXO</span>
-                <span class="text-[11px] text-gray-500">Pago en caja</span>
-              </div>
-              <div class="bg-white text-brandBlack p-4 rounded-xl shadow-lg text-center w-28">
-                <span class="block font-black text-brandPink text-lg">SPEI</span>
-                <span class="text-[11px] text-gray-500">Transferencia</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Carousel Controls -->
-        <button onclick="changeSlide(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-brandPink hover:text-white text-brandBlack shadow flex items-center justify-center transition">
-          <i class="fa-solid fa-chevron-left text-sm"></i>
-        </button>
-        <button onclick="changeSlide(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-brandPink hover:text-white text-brandBlack shadow flex items-center justify-center transition">
-          <i class="fa-solid fa-chevron-right text-sm"></i>
-        </button>
-      </div>
-
-      <!-- TRUST BAR (Pagos y Envíos México) -->
-      <div class="mt-4 bg-white rounded-xl shadow-xs border border-gray-100 p-3.5 sm:p-4 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-brandPinkLight text-brandPink flex items-center justify-center shrink-0">
-            <i class="fa-regular fa-credit-card text-lg"></i>
-          </div>
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-brandBlack">Tarjeta Crédito y Débito</p>
-            <p class="text-[11px] text-gray-500">Cobro seguro en MXN</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0 font-black text-xs">
-            OXXO
-          </div>
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-brandBlack">Pago en Efectivo OXXO</p>
-            <p class="text-[11px] text-gray-500">Ficha con código de barras</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-brandPinkLight text-brandPink flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-building-columns text-lg"></i>
-          </div>
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-brandBlack">Transferencia SPEI</p>
-            <p class="text-[11px] text-gray-500">CLABE interbancaria directa</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-gray-100 text-brandBlack flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-truck-fast text-lg"></i>
-          </div>
-          <div>
-            <p class="text-xs sm:text-sm font-semibold text-brandBlack">Envíos SkydropX</p>
-            <p class="text-[11px] text-gray-500">Local Juárez y Nacional MX</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MAIN CATALOG SECTION -->
-  <main id="catalogo" class="max-w-7xl mx-auto px-3 sm:px-6 pb-16">
-    <!-- Section Title & Sort -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-      <div>
-        <h2 class="text-lg sm:text-2xl font-bold text-brandBlack flex items-center gap-2">
-          <span id="catalog-title">Productos Destacados</span>
-          <span id="product-count" class="text-xs font-normal text-gray-500 bg-white px-2.5 py-0.5 rounded-full shadow-2xs border border-gray-100"></span>
-        </h2>
-        <p class="text-xs text-gray-500">Vendido y enviado exclusivamente por <strong>Arencross-shopstore (Cd. Juárez, Chih.)</strong></p>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <label for="sort-select" class="text-xs text-gray-600 font-medium">Ordenar por:</label>
-        <select
-          id="sort-select"
-          onchange="handleSort(this.value)"
-          class="bg-white text-xs sm:text-sm text-brandBlack font-medium px-3 py-1.5 rounded-lg border border-gray-200 shadow-2xs focus:outline-none focus:border-brandPink"
-        >
-          <option value="featured">Más relevantes</option>
-          <option value="price-asc">Menor precio (MXN)</option>
-          <option value="price-desc">Mayor precio (MXN)</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Products Grid -->
-    <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
-      <!-- Rendered via JavaScript -->
-    </div>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="hidden bg-white rounded-2xl p-10 text-center shadow-xs my-6 border border-gray-100">
-      <div class="w-16 h-16 mx-auto bg-brandPinkLight rounded-full flex items-center justify-center text-brandPink text-2xl mb-3">
-        <i class="fa-solid fa-magnifying-glass"></i>
-      </div>
-      <h3 class="text-lg font-bold text-brandBlack">No encontramos publicaciones</h3>
-      <p class="text-sm text-gray-500 mt-1">Intenta buscar con otra palabra clave o explora todas las categorías.</p>
-      <button onclick="resetFilters()" class="mt-4 bg-brandPink text-white text-sm font-semibold px-5 py-2 rounded-lg hover:bg-brandPinkDark transition">
-        Ver todos los productos
-      </button>
-    </div>
-  </main>
-
-  <!-- FOOTER (BLACK, PINK & WHITE) -->
-  <footer class="bg-brandBlack text-white border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-      <div>
-        <div class="flex items-center gap-2 mb-2">
-          <div class="w-8 h-8 rounded-lg bg-brandPink text-white flex items-center justify-center font-extrabold">A</div>
-          <span class="font-extrabold text-lg">Arencross<span class="text-brandPink font-normal">-shopstore</span></span>
-        </div>
-        <p class="text-xs text-gray-400 leading-relaxed">
-          Tienda oficial en <strong class="text-white">Ciudad Juárez, Chihuahua, México</strong>. Especialistas en Mallas, Tenis para Hombre y Mujer y Playeras para Hombre. Envíos locales y cobertura nacional con SkydropX.
-        </p>
-      </div>
-      <div>
-        <h4 class="font-bold text-xs uppercase tracking-wider text-brandPink mb-2">Métodos de Pago Nacionales</h4>
-        <ul class="text-xs text-gray-300 space-y-1.5">
-          <li><i class="fa-solid fa-check text-brandPink mr-1.5"></i> Tarjetas de Crédito y Débito (Visa, Mastercard, Amex)</li>
-          <li><i class="fa-solid fa-check text-brandPink mr-1.5"></i> Pago en efectivo en tiendas OXXO</li>
-          <li><i class="fa-solid fa-check text-brandPink mr-1.5"></i> Transferencia interbancaria SPEI (Pesos MXN)</li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-bold text-xs uppercase tracking-wider text-brandPink mb-2">Atención al Cliente</h4>
-        <p class="text-xs text-gray-300 mb-3">¿Tienes dudas sobre tallas, disponibilidad o entregas hoy en Juárez?</p>
-        <a
-          href="https://wa.me/526561234567?text=Hola%20Arencross-shopstore%20Cd.%20Ju%C3%A1rez,%20tengo%20una%20consulta%20sobre%20sus%20productos."
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold text-xs px-4 py-2.5 rounded-lg transition shadow-xs"
-        >
-          <i class="fa-brands fa-whatsapp text-base"></i> Chatear por WhatsApp
-        </a>
-      </div>
-    </div>
-    <div class="bg-black/50 border-t border-white/10 py-3 px-4 text-center text-[11px] text-gray-400">
-      © 2026 Arencross-shopstore CD. JUÁREZ, CHIH. Todos los precios están expresados en Pesos Mexicanos (MXN). Envíos exclusivos dentro de la República Mexicana.
-    </div>
-  </footer>
-
-  <!-- FLOATING WHATSAPP BUTTON -->
-  <a
-    href="https://wa.me/526561234567?text=Hola%20Arencross-shopstore%20Cd.%20Ju%C3%A1rez,%20me%20gustar%C3%ADa%20recibir%20atenci%C3%B3n%20personalizada."
-    target="_blank"
-    rel="noopener noreferrer"
-    class="fixed bottom-5 right-5 z-40 bg-[#25D366] hover:bg-[#1ebe5d] text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-3xl transition-transform hover:scale-110"
-    title="Atención al cliente por WhatsApp"
-    aria-label="WhatsApp Arencross-shopstore"
-  >
-    <i class="fa-brands fa-whatsapp"></i>
-  </a>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 1: DETALLE DEL PRODUCTO (ESTILO MERCADO LIBRE - BLACK/PINK)     -->
-  <!-- ===================================================================== -->
-  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs overflow-y-auto p-2 sm:p-6">
-    <div class="bg-white rounded-2xl max-w-5xl mx-auto my-4 shadow-2xl overflow-hidden">
-      <!-- Modal Top Bar -->
-      <div class="flex items-center justify-between px-4 sm:px-6 py-3 bg-brandBlack text-white">
-        <span class="text-xs font-medium text-gray-300" id="modal-breadcrumb">Catálogo > Producto</span>
-        <button onclick="closeProductModal()" class="w-8 h-8 rounded-full hover:bg-white/15 flex items-center justify-center text-white transition">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <!-- Modal Content Grid -->
-      <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <!-- Left: Thumbnails + Main Zoom Image (7 cols) -->
-        <div class="lg:col-span-7 flex flex-col-reverse sm:flex-row gap-3">
-          <!-- Thumbnails -->
-          <div id="modal-thumbnails" class="flex sm:flex-col gap-2 overflow-x-auto sm:overflow-y-auto sm:max-h-[420px] shrink-0">
-            <!-- Injected dynamically -->
-          </div>
-          <!-- Main Image with Zoom -->
-          <div class="flex-1 bg-white border border-gray-200 rounded-xl flex items-center justify-center p-4 h-[300px] sm:h-[420px] zoom-container" onmousemove="handleImageZoom(event, this)" onmouseleave="resetImageZoom(this)">
-            <img id="modal-main-img" src="" alt="Producto" class="max-h-full max-w-full object-contain" />
-            <span class="absolute bottom-2 right-2 bg-brandBlack/80 text-white text-[10px] px-2 py-1 rounded-md pointer-events-none">
-              <i class="fa-solid fa-magnifying-glass-plus mr-1 text-brandPink"></i> Pasa el cursor para hacer zoom
-            </span>
-          </div>
-        </div>
-
-        <!-- Right: Product Info & Actions (5 cols) -->
-        <div class="lg:col-span-5 flex flex-col justify-between border border-gray-200 rounded-xl p-4 sm:p-5 bg-white">
-          <div class="space-y-3">
-            <div class="flex items-center justify-between text-xs text-gray-500">
-              <span>Nuevo | +150 vendidos</span>
-              <span class="text-brandPink font-semibold"><i class="fa-solid fa-circle-check"></i> Stock disponible</span>
-            </div>
-
-            <h2 id="modal-title" class="text-lg sm:text-xl font-bold text-brandBlack leading-snug"></h2>
-
-            <!-- Rating -->
-            <div class="flex items-center gap-1.5 text-xs">
-              <div class="text-brandPink" id="modal-stars"></div>
-              <span class="text-gray-500" id="modal-reviews-count">(48 opiniones)</span>
-            </div>
-
-            <!-- Price MXN -->
-            <div class="pt-1">
-              <span id="modal-old-price" class="text-xs text-gray-400 line-through block"></span>
-              <div class="flex items-baseline gap-2">
-                <span id="modal-price" class="text-3xl font-extrabold text-brandBlack"></span>
-                <span class="text-xs font-bold text-brandPink bg-brandPinkLight px-2 py-0.5 rounded">MXN</span>
-              </div>
-              <p class="text-xs text-brandPink font-semibold mt-1">
-                <i class="fa-solid fa-truck-fast mr-1"></i> <span id="modal-shipping-badge">Envío local hoy en Cd. Juárez / Nacional SkydropX</span>
-              </p>
-            </div>
-
-            <!-- Variant / Size Selector -->
-            <div id="modal-variants-container" class="pt-2">
-              <label class="text-xs font-semibold text-gray-700 block mb-1.5">Selecciona talla / opción:</label>
-              <div id="modal-variants" class="flex flex-wrap gap-2"></div>
-            </div>
-
-            <!-- Seller Info Box -->
-            <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 text-xs space-y-1">
-              <p class="font-semibold text-brandBlack">Vendido por <span class="text-brandPink font-bold">Arencross-shopstore</span></p>
-              <p class="text-gray-600"><i class="fa-solid fa-location-dot text-brandPink mr-1"></i> Ubicación: Cd. Juárez, Chihuahua, México</p>
-              <p class="text-brandBlack font-medium"><i class="fa-solid fa-medal text-brandPink mr-1"></i> Vendedor Oficial Verificado</p>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="mt-5 space-y-2.5">
-            <button
-              onclick="addToCartFromModal(true)"
-              class="w-full bg-brandPink hover:bg-brandPinkDark text-white font-bold py-3 rounded-lg text-sm transition shadow-sm"
-            >
-              Comprar ahora
-            </button>
-            <button
-              onclick="addToCartFromModal(false)"
-              class="w-full bg-brandPinkLight hover:bg-pink-100 text-brandPink font-bold py-3 rounded-lg text-sm transition border border-brandPink/20"
-            >
-              Agregar al carrito
-            </button>
-            <a
-              id="modal-whatsapp-btn"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="w-full flex items-center justify-center gap-2 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#128C7E] font-bold py-2.5 rounded-lg text-xs sm:text-sm transition border border-[#25D366]/30"
-            >
-              <i class="fa-brands fa-whatsapp text-lg"></i> Consultar este producto por WhatsApp
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Description & Q&A Section -->
-      <div class="px-4 sm:px-6 pb-6 grid grid-cols-1 lg:grid-cols-12 gap-6 border-t border-gray-100 pt-6">
-        <div class="lg:col-span-7 space-y-3">
-          <h3 class="text-base font-bold text-brandBlack">Descripción y especificaciones</h3>
-          <p id="modal-description" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></p>
-        </div>
-
-        <!-- Preguntas y Respuestas -->
-        <div class="lg:col-span-5 space-y-3">
-          <h3 class="text-base font-bold text-brandBlack">Preguntas y respuestas</h3>
-          <div class="flex gap-2">
-            <input
-              type="text"
-              id="qa-input"
-              placeholder="Escribe tu pregunta sobre tallas o envíos..."
-              class="flex-1 text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink"
-            />
-            <button
-              onclick="submitQuestion()"
-              class="bg-brandBlack hover:bg-brandPink text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg transition shrink-0"
-            >
-              Preguntar
-            </button>
-          </div>
-          <div id="qa-list" class="space-y-2.5 max-h-48 overflow-y-auto pt-1">
-            <!-- Q&A injected dynamically -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 2: CARRITO LATERAL + COTIZADOR SKYDROPX + CHECKOUT MÉXICO       -->
-  <!-- ===================================================================== -->
-  <div id="cart-drawer-backdrop" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs transition-opacity" onclick="toggleCart(false)"></div>
-  <aside id="cart-drawer" class="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-    <!-- Drawer Header -->
-    <div class="px-4 py-3.5 bg-brandBlack text-white flex items-center justify-between border-b border-white/10">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-cart-shopping text-brandPink"></i>
-        <h3 class="font-bold text-base">Tu Carrito (MXN)</h3>
-      </div>
-      <button onclick="toggleCart(false)" class="w-8 h-8 rounded-full hover:bg-white/15 flex items-center justify-center text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-    </div>
-
-    <!-- Step Tabs -->
-    <div class="grid grid-cols-2 text-xs font-semibold border-b border-gray-200 bg-gray-50">
-      <button id="tab-cart-btn" onclick="switchCheckoutStep('cart')" class="py-2.5 text-brandPink border-b-2 border-brandPink bg-white">
-        1. Carrito y Envío SkydropX
-      </button>
-      <button id="tab-pay-btn" onclick="switchCheckoutStep('payment')" class="py-2.5 text-gray-500">
-        2. Pago Nacional (MXN)
-      </button>
-    </div>
-
-    <!-- STEP 1: CART ITEMS & SKYDROPX SHIPPING CALCULATOR -->
-    <div id="step-cart" class="flex-1 overflow-y-auto p-4 space-y-4">
-      <!-- Cart Items List -->
-      <div id="cart-items-container" class="space-y-3">
-        <!-- Rendered via JS -->
-      </div>
-
-      <!-- SkydropX Shipping Quote Box -->
-      <div id="skydropx-box" class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-brandBlack flex items-center gap-1.5">
-            <i class="fa-solid fa-truck-fast text-brandPink"></i> Cotizador de Envío SkydropX
-          </span>
-          <span class="text-[10px] font-semibold bg-brandPinkLight text-brandPink px-2 py-0.5 rounded">Solo México</span>
-        </div>
-
-        <div class="flex gap-2">
-          <input
-            type="text"
-            id="cp-input"
-            maxlength="5"
-            placeholder="Código Postal (ej. 32000)"
-            class="flex-1 text-xs sm:text-sm bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink"
-          />
-          <button
-            onclick="quoteSkydropX()"
-            class="bg-brandBlack hover:bg-brandPink text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shrink-0"
-          >
-            Cotizar
-          </button>
-        </div>
-        <p class="text-[11px] text-gray-500">
-          Origen: <strong>Cd. Juárez, Chih. (CP 32000)</strong>. Ingresa tu CP de 5 dígitos.
-        </p>
-
-        <!-- Shipping Options List -->
-        <div id="shipping-options-list" class="space-y-2 pt-1">
-          <!-- Populated after quoting CP -->
-        </div>
-      </div>
-    </div>
-
-    <!-- STEP 2: MEXICAN PAYMENT GATEWAY (TARJETA / SPEI / OXXO) -->
-    <div id="step-payment" class="hidden flex-1 overflow-y-auto p-4 space-y-4">
-      <div class="bg-brandPinkLight border border-brandPink/20 rounded-xl p-3 text-xs text-brandBlack">
-        <p class="font-bold text-brandPink mb-0.5"><i class="fa-solid fa-lock mr-1"></i> Checkout Seguro Arencross-shopstore</p>
-        <p class="text-gray-600">Transacción exclusiva en Pesos Mexicanos (MXN). Sin cargos internacionales.</p>
-      </div>
-
-      <!-- Customer Data -->
-      <div class="space-y-2.5">
-        <label class="block text-xs font-bold text-brandBlack">Datos de entrega en México</label>
-        <input type="text" id="cust-name" placeholder="Nombre completo de quien recibe" class="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        <input type="tel" id="cust-phone" placeholder="Teléfono WhatsApp (10 dígitos)" class="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        <input type="text" id="cust-address" placeholder="Calle, número, colonia y ciudad" class="w-full text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-      </div>
-
-      <!-- Payment Method Selector -->
-      <div class="space-y-2">
-        <label class="block text-xs font-bold text-brandBlack">Elige tu método de pago nacional</label>
-
-        <!-- Option A: Card -->
-        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50 transition border-brandPink bg-brandPinkLight/40">
-          <input type="radio" name="pay-method" value="card" checked onchange="togglePaymentDetails('card')" class="accent-brandPink" />
-          <div class="flex-1">
-            <span class="text-xs sm:text-sm font-bold text-brandBlack block">Tarjeta de Crédito o Débito</span>
-            <span class="text-[11px] text-gray-500">Visa, Mastercard, Carnet (México)</span>
-          </div>
-          <i class="fa-regular fa-credit-card text-brandPink text-lg"></i>
-        </label>
-
-        <!-- Card Inputs -->
-        <div id="pay-details-card" class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-2">
-          <input type="text" maxlength="19" placeholder="Número de tarjeta (16 dígitos)" class="w-full text-xs bg-white border border-gray-300 rounded-lg px-3 py-2" />
-          <div class="grid grid-cols-2 gap-2">
-            <input type="text" maxlength="5" placeholder="MM/AA" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2" />
-            <input type="text" maxlength="4" placeholder="CVV" class="text-xs bg-white border border-gray-300 rounded-lg px-3 py-2" />
-          </div>
-        </div>
-
-        <!-- Option B: SPEI -->
-        <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
-          <input type="radio" name="pay-method" value="spei" onchange="togglePaymentDetails('spei')" class="accent-brandPink" />
-          <div class="flex-1">
-            <span class="text-xs sm:text-sm font-bold text-brandBlack block">Transferencia Electrónica SPEI</span>
-            <span class="text-[11px] text-gray-500">Cualquier banco mexicano (BBVA, Banamex, Banorte, Nu, etc.)</span>
-          </div>
-          <i class="fa-solid fa-building-columns text-brandPink text-lg"></i>
-        </label>
-
-        <!-- SPEI Info -->
-        <div id="pay-details-spei" class="hidden p-3 bg-brandPinkLight/60 rounded-xl border border-brandPink/20 space-y-1.5 text-xs">
-          <p class="font-bold text-brandBlack">CLABE Interbancaria Arencross-shopstore:</p>
-          <div class="flex items-center justify-between bg-white px-3 py-2 rounded border border-brandPink/30 font-mono font-bold text-brandBlack">
-            <span id="spei-clabe">646180157042891034</span>
-            <button onclick="copyText('646180157042891034')" class="text-brandPink text-[11px] font-sans font-bold hover:underline">Copiar</button>
-          </div>
-          <p class="text-[11px] text-gray-600">Banco: STP / Beneficiario: Arencross-shopstore Cd. Juárez</p>
-        </div>
-
-        <!-- Option C: OXXO -->
-        <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
-          <input type="radio" name="pay-method" value="oxxo" onchange="togglePaymentDetails('oxxo')" class="accent-brandPink" />
-          <div class="flex-1">
-            <span class="text-xs sm:text-sm font-bold text-brandBlack block">Pago en Efectivo OXXO</span>
-            <span class="text-[11px] text-gray-500">Paga en cualquier tienda OXXO de México</span>
-          </div>
-          <span class="font-black text-red-600 text-xs bg-red-50 px-2 py-1 rounded">OXXO</span>
-        </label>
-
-        <!-- OXXO Ticket Preview -->
-        <div id="pay-details-oxxo" class="hidden p-3 bg-white rounded-xl border border-gray-300 space-y-2 text-center">
-          <span class="inline-block bg-red-600 text-white font-black text-xs px-3 py-0.5 rounded">FICHA DE PAGO OXXO</span>
-          <div class="oxxo-barcode rounded"></div>
-          <p class="font-mono text-xs font-bold tracking-widest text-brandBlack">9800-3200-4589-1120</p>
-          <p class="text-[11px] text-gray-500">Dicta esta referencia al cajero. Comisión OXXO: $15.00 MXN.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Drawer Footer: Totals & CTA -->
-    <div id="cart-footer" class="p-4 bg-gray-50 border-t border-gray-200 space-y-2.5">
-      <div class="space-y-1 text-xs">
-        <div class="flex justify-between text-gray-600">
-          <span>Subtotal productos:</span>
-          <span id="cart-subtotal">$0.00 MXN</span>
-        </div>
-        <div class="flex justify-between text-gray-600">
-          <span>Envío (<span id="cart-shipping-label">Por cotizar</span>):</span>
-          <span id="cart-shipping-cost">$0.00 MXN</span>
-        </div>
-        <div class="flex justify-between text-base font-extrabold text-brandBlack pt-1.5 border-t border-gray-200">
-          <span>Total a pagar:</span>
-          <span id="cart-total">$0.00 MXN</span>
-        </div>
-      </div>
-
-      <button
-        id="checkout-primary-btn"
-        onclick="handleCheckoutPrimaryAction()"
-        class="w-full bg-brandPink hover:bg-brandPinkDark text-white font-bold py-3 rounded-xl text-sm transition shadow-sm"
-      >
-        Continuar al Pago
-      </button>
-    </div>
-  </aside>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 3: RECIBO / CONFIRMACIÓN DE COMPRA EXITOSA                      -->
-  <!-- ===================================================================== -->
-  <div id="order-success-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-16 h-16 mx-auto rounded-full bg-brandPinkLight text-brandPink flex items-center justify-center text-3xl">
-        <i class="fa-solid fa-circle-check"></i>
-      </div>
-      <h3 class="text-xl font-extrabold text-brandBlack">¡Pedido Registrado con Éxito!</h3>
-      <p class="text-xs sm:text-sm text-gray-600" id="order-success-msg">
-        Gracias por comprar en <strong>Arencross-shopstore CD. JUÁREZ, CHIH.</strong> Tu guía SkydropX está lista para prepararse.
-      </p>
-      <div id="order-receipt-box" class="bg-gray-50 border border-gray-200 rounded-xl p-3.5 text-left text-xs space-y-1.5">
-        <!-- Injected dynamically -->
-      </div>
-      <div class="flex flex-col gap-2 pt-2">
-        <a
-          id="order-whatsapp-confirm"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-full bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 transition"
-        >
-          <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Comprobante por WhatsApp
-        </a>
-        <button
-          onclick="closeOrderSuccessModal()"
-          class="w-full bg-brandBlack hover:bg-brandPink text-white font-semibold py-2.5 rounded-xl text-xs sm:text-sm transition"
-        >
-          Seguir comprando en la tienda
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 4: ACCESO PRIVADO CON PIN DEL DUEÑO (OCULTO AL PÚBLICO)         -->
-  <!-- ===================================================================== -->
-  <div id="admin-pin-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-brandBlack text-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-brandPink/40">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-shield-halved text-brandPink text-lg"></i>
-          <h3 class="font-bold text-base">Acceso Privado del Propietario</h3>
-        </div>
-        <button onclick="closePinModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <p class="text-xs text-gray-300">
-        Área exclusiva de <strong>Arencross-shopstore</strong>. Ingresa tu PIN de seguridad (PIN por defecto: <code class="text-brandPink font-bold">1234</code>).
-      </p>
-      <form onsubmit="verifyAdminPin(event)" class="space-y-3">
-        <input
-          type="password"
-          id="admin-pin-input"
-          maxlength="8"
-          inputmode="numeric"
-          placeholder="••••"
-          required
-          class="w-full text-center tracking-[0.5em] text-lg font-bold bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-brandPink"
-        />
-        <button type="submit" class="w-full bg-brandPink hover:bg-brandPinkDark text-white font-bold py-2.5 rounded-xl text-sm transition">
-          Desbloquear Inventario
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 5: PANEL PRIVADO DE INVENTARIO (AGREGAR / EDITAR / ELIMINAR)    -->
-  <!-- ===================================================================== -->
-  <div id="admin-modal" class="fixed inset-0 z-50 hidden bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-5 shadow-2xl my-4">
-      <div class="flex items-center justify-between border-b border-gray-200 pb-3">
-        <div>
-          <h3 class="text-lg font-extrabold text-brandBlack flex items-center gap-2">
-            <i class="fa-solid fa-lock text-brandPink"></i> Gestión Privada de Catálogo
-          </h3>
-          <p class="text-xs text-gray-500">Arencross-shopstore • Mallas, Tenis Hombre, Tenis Mujer, Playeras Hombre</p>
-        </div>
-        <button onclick="closeAdminModal()" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <!-- Form Add / Edit Product -->
-      <form id="add-product-form" onsubmit="handleSaveProduct(event)" class="space-y-3 text-xs sm:text-sm bg-gray-50 p-4 rounded-xl border border-gray-200">
-        <input type="hidden" id="admin-edit-id" value="" />
-        <div class="flex items-center justify-between">
-          <span id="admin-form-title" class="font-bold text-brandBlack">Publicar Nuevo Producto</span>
-          <button type="button" id="admin-cancel-edit-btn" onclick="resetAdminForm()" class="hidden text-xs text-brandPink font-semibold hover:underline">
-            Cancelar edición
-          </button>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-brandBlack mb-1">Nombre del producto *</label>
-          <input type="text" id="admin-prod-name" required placeholder="Ej. Mallas Deportivas Seamless Rosa Neón" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block font-semibold text-brandBlack mb-1">Precio (MXN) *</label>
-            <input type="number" id="admin-prod-price" required min="1" step="0.01" placeholder="549" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-          </div>
-          <div>
-            <label class="block font-semibold text-brandBlack mb-1">Categoría Exclusiva *</label>
-            <select id="admin-prod-cat" class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:border-brandPink">
-              <option value="Mallas">Mallas</option>
-              <option value="Tenis Hombre">Tenis Hombre</option>
-              <option value="Tenis Mujer">Tenis Mujer</option>
-              <option value="Playeras Hombre">Playeras Hombre</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-semibold text-brandBlack mb-1">Tallas disponibles (separadas por coma) *</label>
-          <input type="text" id="admin-prod-variants" required placeholder="Ej. CH, M, G, XG  o  25 MX, 26 MX, 27 MX, 28 MX" class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        </div><div>
-          <label class="block font-semibold text-brandBlack mb-1">Fotografía del producto</label>
-          <input 
-            type="file" 
-            id="admin-prod-file" 
-            accept="image/*" 
-            class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-brandPink file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-brandPink file:text-white hover:file:bg-brandPinkDark" 
-          />
-        </div>
-<div>
-</div>
-</div>
-        <div>
-          <label class="block font-semibold text-brandBlack mb-1">URL de la imagen principal</label>
-          <input type="url" id="admin-prod-img" placeholder="https://images.unsplash.com/..." class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        </div>
-
-        <div>
-          <label class="block font-semibold text-brandBlack mb-1">Descripción técnica</label>
-          <textarea id="admin-prod-desc" rows="2" placeholder="Tipo de tela, ajuste, suela y tiempos de entrega en Juárez..." class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink"></textarea>
-        </div>
-
-        <div class="pt-1 flex justify-end gap-2">
-          <button type="submit" id="admin-submit-btn" class="px-5 py-2 rounded-lg bg-brandPink hover:bg-brandPinkDark text-white font-bold shadow-xs">
-            Guardar en Catálogo
-          </button>
-        </div>
-      </form>
-
-      <!-- Current Inventory List (Edit / Delete) -->
-      <div class="space-y-2">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">Inventario Actual (<span id="admin-inv-count">0</span> productos)</h4>
-        <div id="admin-inventory-list" class="max-h-56 overflow-y-auto space-y-2 pr-1">
-          <!-- Populated dynamically -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- MODAL 6: CONFIGURACIÓN RÁPIDA DE CÓDIGO POSTAL EN HEADER              -->
-  <!-- ===================================================================== -->
-  <div id="cp-quick-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-5 space-y-3 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 class="font-bold text-base text-brandBlack">Elige dónde recibir tus compras</h3>
-        <button onclick="closeCpQuickModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <p class="text-xs text-gray-500">Ingresa tu Código Postal de México para calcular tiempos y tarifas con <strong>SkydropX</strong>.</p>
-      <div class="flex gap-2">
-        <input type="text" id="quick-cp-input" maxlength="5" placeholder="Ej. 32000 (Cd. Juárez)" class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brandPink" />
-        <button onclick="saveQuickCp()" class="bg-brandPink hover:bg-brandPinkDark text-white text-sm font-semibold px-4 py-2 rounded-lg">
-          Usar CP
-        </button>
-      </div>
-      <div class="flex gap-2 pt-1">
-        <button onclick="document.getElementById('quick-cp-input').value='32000'; saveQuickCp();" class="text-[11px] bg-gray-100 hover:bg-brandPinkLight hover:text-brandPink px-2.5 py-1 rounded-md text-brandBlack font-medium">
-          Cd. Juárez (32000)
-        </button>
-        <button onclick="document.getElementById('quick-cp-input').value='31000'; saveQuickCp();" class="text-[11px] bg-gray-100 hover:bg-brandPinkLight hover:text-brandPink px-2.5 py-1 rounded-md text-brandBlack font-medium">
-          Chihuahua (31000)
-        </button>
-        <button onclick="document.getElementById('quick-cp-input').value='06600'; saveQuickCp();" class="text-[11px] bg-gray-100 hover:bg-brandPinkLight hover:text-brandPink px-2.5 py-1 rounded-md text-brandBlack font-medium">
-          CDMX (06600)
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
-  <!-- ===================================================================== -->
-  <script>
-    // 1. EXCLUSIVE PRODUCT CATALOG (MALLAS, TENIS HOMBRE, TENIS MUJER, PLAYERAS HOMBRE)
-    let products = [
-      {
-        id: 201,
-        name: "Mallas Deportivas Seamless Cintura Alta Rosa / Negro Compresión",
-        price: 549,
-        oldPrice: 749,
-        category: "Mallas",
-        rating: 4.9,
-        reviews: 142,
-        badge: "Entrega hoy en Juárez",
-        freeShipping: true,
-        variants: ["S", "M", "L", "XL"],
-        images: [
-          "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Tejido Seamless sin costuras de alta elasticidad y cero transparencias (a prueba de sentadillas).\n• Pretina ancha de compresión abdominal que moldea la figura.\n• Secado rápido ideal para gimnasio, running o uso diario.\n• Disponible para entrega inmediata en Ciudad Juárez.",
-        qna: [
-          { q: "¿Transparentan al hacer sentadilla?", a: "¡Para nada! Están confeccionadas con tela de alto gramaje cero transparencias." },
-          { q: "¿Hacen entregas hoy en Juárez?", a: "Sí, en compras antes de las 4:00 PM entregamos el mismo día." }
-        ]
-      },
-      {
-        id: 202,
-        name: "Mallas Leggings Deportivos Negro Mate Efecto Push-Up",
-        price: 499,
-        oldPrice: 680,
-        category: "Mallas",
-        rating: 4.8,
-        reviews: 98,
-        badge: "Envío gratis",
-        freeShipping: true,
-        variants: ["S", "M", "L", "XL"],
-        images: [
-          "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Color negro intenso que no se desliza ni se enrolla durante el entrenamiento.\n• Costura trasera estilizada con ajuste ergonómico.\n• Bolsillo oculto en cintura para llaves o tarjeta.",
-        qna: []
-      },
-      {
-        id: 203,
-        name: "Tenis Running Hombre Negro / Blanco Suela Amortiguada Ultra",
-        price: 1190,
-        oldPrice: 1550,
-        category: "Tenis Hombre",
-        rating: 4.9,
-        reviews: 115,
-        badge: "Entrega hoy en Juárez",
-        freeShipping: true,
-        variants: ["26 MX", "27 MX", "28 MX", "29 MX"],
-        images: [
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Malla transpirable de alta resistencia con refuerzo en talón.\n• Entresuela de espuma reactiva que absorbe impactos al caminar o correr.\n• Suela antiderrapante de gran durabilidad.\n• Horma estándar mexicana.",
-        qna: [
-          { q: "¿Vienen amplios o reducidos?", a: "Vienen a la talla exacta mexicana (MX). Si tienes empeine ancho te recomendamos medio número arriba." }
-        ]
-      },
-      {
-        id: 204,
-        name: "Tenis Urbanos Hombre Negro Total Estilo Casual Streetwear",
-        price: 1050,
-        oldPrice: 1390,
-        category: "Tenis Hombre",
-        rating: 4.8,
-        reviews: 76,
-        badge: "Envío gratis",
-        freeShipping: true,
-        variants: ["26 MX", "27 MX", "28 MX", "29 MX"],
-        images: [
-          "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Diseño minimalista en color negro versátil para combinar con jeans o pants.\n• Plantilla acolchada de confort prolongado.\n• Materiales fáciles de limpiar.",
-        qna: []
-      },
-      {
-        id: 205,
-        name: "Tenis Deportivos Mujer Blanco / Rosa Pastel Ligero Confort",
-        price: 1120,
-        oldPrice: 1450,
-        category: "Tenis Mujer",
-        rating: 4.9,
-        reviews: 164,
-        badge: "Entrega hoy en Juárez",
-        freeShipping: true,
-        variants: ["23 MX", "24 MX", "25 MX", "26 MX"],
-        images: [
-          "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Combinación elegante en blanco puro con detalles en rosa vibrante.\n• Peso ultraligero ideal para gimnasio, caminata o uso diario.\n• Plantilla memory foam suave al pisar.",
-        qna: []
-      },
-      {
-        id: 206,
-        name: "Tenis Chunky Plataforma Mujer Blanco / Negro Trendy",
-        price: 1249,
-        oldPrice: 1590,
-        category: "Tenis Mujer",
-        rating: 4.8,
-        reviews: 88,
-        badge: "Envío gratis",
-        freeShipping: true,
-        variants: ["23 MX", "24 MX", "25 MX", "26 MX"],
-        images: [
-          "https://images.unsplash.com/photo-1551107696-a4b0c5a0d9a2?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Suela plataforma ligera de 4.5 cm que estiliza sin cansar.\n• Acabado sintético premium resistente y fácil de mantener impecable.\n• Envío seguro a todo México por SkydropX.",
-        qna: []
-      },
-      {
-        id: 207,
-        name: "Playera Oversize Hombre Negra Algodón Peinado Alto Gramaje",
-        price: 399,
-        oldPrice: 520,
-        category: "Playeras Hombre",
-        rating: 4.9,
-        reviews: 131,
-        badge: "Entrega hoy en Juárez",
-        freeShipping: false,
-        variants: ["S", "M", "L", "XL"],
-        images: [
-          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=80",
-          "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• 100% algodón peinado pesado (240 gsm) de caída estructurada.\n• Cuello redondo acanalado grueso que no se deforma con las lavadas.\n• Corte moderno relajado en color negro profundo.",
-        qna: []
-      },
-      {
-        id: 208,
-        name: "Playera Deportiva Hombre Dry-Fit Blanca / Detalles Negros Gym",
-        price: 359,
-        oldPrice: 480,
-        category: "Playeras Hombre",
-        rating: 4.7,
-        reviews: 67,
-        badge: "Entrega hoy en Juárez",
-        freeShipping: false,
-        variants: ["S", "M", "L", "XL"],
-        images: [
-          "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=700&q=80"
-        ],
-        description: "• Tela microperforada respirable que expulsa el sudor rápidamente.\n• Corte atlético que favorece hombros y pecho.\n• Ideal para entrenamiento pesado o correr.",
-        qna: []
-      }
-    ];
-
-    // 2. APPLICATION STATE & PRIVATE OWNER PIN
-    const OWNER_PIN = "1234";
-    let logoTapCount = 0;
-    let logoTapTimer = null;
-
-    let currentCategory = "Todos";
-    let currentSearch = "";
-    let currentSort = "featured";
-    let activeProduct = null;
-    let selectedVariant = "";
-    let cart = [];
-    let userCp = "32000";
-    let selectedShipping = null;
-    let checkoutStep = "cart";
-    let currentSlideIndex = 0;
-
-    // WHATSAPP NUMBER FOR ARENCROSS-SHOPSTORE CD. JUÁREZ
-    const STORE_WHATSAPP = "526561234567";
-
-    // SECRET OWNER ACCESS TRIGGERS (Triple-tap logo OR Ctrl+Shift+A OR ?admin=1)
-    function handleSecretLogoTap() {
-      logoTapCount++;
-      clearTimeout(logoTapTimer);
-      if (logoTapCount >= 3) {
-        logoTapCount = 0;
-        openPinModal();
-        return;
-      }
-      logoTapTimer = setTimeout(() => {
-        if (logoTapCount === 1) {
-          resetFilters();
-        }
-        logoTapCount = 0;
-      }, 450);
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
-        e.preventDefault();
-        openPinModal();
-      }
-    });
-
-    function openPinModal() {
-      document.getElementById("admin-pin-input").value = "";
-      document.getElementById("admin-pin-modal").classList.remove("hidden");
-      setTimeout(() => document.getElementById("admin-pin-input").focus(), 100);
-    }
-
-    function closePinModal() {
-      document.getElementById("admin-pin-modal").classList.add("hidden");
-    }
-
-    function verifyAdminPin(e) {
-      e.preventDefault();
-      const entered = document.getElementById("admin-pin-input").value.trim();
-      if (entered === OWNER_PIN) {
-        closePinModal();
-        openAdminModal();
-        showToast("Acceso privado concedido", "success");
-      } else {
-        showToast("PIN incorrecto", "error");
-        document.getElementById("admin-pin-input").value = "";
-      }
-    }
-
-    // FORMAT CURRENCY IN MXN
-    function formatMXN(amount) {
-      return new Intl.NumberFormat("es-MX", {
-        style: "currency",
-        currency: "MXN",
-        minimumFractionDigits: 2
-      }).format(amount) + " MXN";
-    }
-
-    // TOAST NOTIFICATION (No alert())
-    function showToast(message, type = "info") {
-      const container = document.getElementById("toast-container");
-      const toast = document.createElement("div");
-      const colors = {
-        success: "bg-brandBlack text-white border-l-4 border-brandPink",
-        error: "bg-red-600 text-white",
-        info: "bg-brandBlack text-white border-l-4 border-brandPink"
-      };
-      toast.className = `${colors[type] || colors.info} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 pointer-events-auto transition-all`;
-      toast.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark"></i></button>`;
-      container.appendChild(toast);
-      setTimeout(() => {
-        if (toast.parentElement) toast.remove();
-      }, 3800);
-    }
-
-    // 3. RENDER CATALOG GRID
-    function renderProducts() {
-      const grid = document.getElementById("products-grid");
-      const emptyState = document.getElementById("empty-state");
-      const countLabel = document.getElementById("product-count");
-
-      let filtered = products.filter((p) => {
-        const matchesCat = currentCategory === "Todos" || p.category === currentCategory;
-        const matchesSearch =
-          p.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
-          p.category.toLowerCase().includes(currentSearch.toLowerCase());
-        return matchesCat && matchesSearch;
-      });
-
-      if (currentSort === "price-asc") {
-        filtered.sort((a, b) => a.price - b.price);
-      } else if (currentSort === "price-desc") {
-        filtered.sort((a, b) => b.price - a.price);
-      }
-
-      countLabel.textContent = `${filtered.length} publicaciones`;
-
-      if (filtered.length === 0) {
-        grid.innerHTML = "";
-        emptyState.classList.remove("hidden");
-        return;
-      }
-
-      emptyState.classList.add("hidden");
-      grid.innerHTML = filtered
-        .map((p) => {
-          const discount = p.oldPrice ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
-          return `
-          <article
-            onclick="openProductModal(${p.id})"
-            class="bg-white rounded-xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col justify-between border border-gray-200/80 group"
-          >
-            <div>
-              <div class="relative h-44 sm:h-52 bg-white p-3 flex items-center justify-center border-b border-gray-100 overflow-hidden">
-                <img
-                  src="${p.images[0]}"
-                  alt="${p.name}"
-                  onerror="this.src='https://placehold.co/400x400/0f0f11/ec4899?text=Arencross'"
-                  class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-                ${
-                  p.badge
-                    ? `<span class="absolute top-2.5 left-2.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brandPink text-white shadow-2xs">${p.badge}</span>`
-                    : ""
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arencross-shopstore | CD. JUÁREZ, CHIH.</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f0f11',
+                            pink: '#ec4899',
+                            pinkdark: '#db2777',
+                            light: '#f8fafc'
+                        }
+                    }
                 }
-              </div>
+            }
+        }
+    </script>
+    <style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-brand-light text-brand-dark font-sans antialiased min-h-screen flex flex-col justify-between">
 
-              <div class="p-3 sm:p-4 space-y-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-brandPink">${p.category}</span>
-                <h3 class="text-xs sm:text-sm font-semibold text-brandBlack line-clamp-2 group-hover:text-brandPink transition">
-                  ${p.name}
+    <!-- HEADER ESTILO MERCADO LIBRE (Negro, Rosa, Blanco) -->
+    <header class="bg-brand-dark sticky top-0 z-40 shadow-md">
+        <!-- Barra superior principal -->
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-2 md:gap-4">
+            
+            <!-- Logo y Ubicación (3 clics para Admin) -->
+            <div class="flex items-center gap-3 cursor-pointer select-none" id="admin-trigger" title="Arencross-shopstore">
+                <div class="bg-brand-pink text-white w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl shadow-lg">
+                    A
+                </div>
+                <div>
+                    <h1 class="text-white font-black text-base md:text-xl tracking-tight">Arencross<span class="text-brand-pink">-shopstore</span></h1>
+                    <p class="text-xs text-pink-300 font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-location-dot"></i> CD. JUÁREZ, CHIH.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Buscador Central -->
+            <div class="flex-1 max-w-xl mx-2">
+                <div class="relative flex items-center">
+                    <input type="text" id="search-input" placeholder="Buscar mallas, tenis, playeras..." 
+                        class="w-full bg-white text-brand-dark text-sm rounded-lg pl-4 pr-10 py-2 shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-pink">
+                    <button class="absolute right-3 text-gray-400 hover:text-brand-pink">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Botón Carrito -->
+            <div class="flex items-center gap-3">
+                <button onclick="toggleCart()" class="relative bg-zinc-800 hover:bg-zinc-700 text-white p-2.5 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-brand-pink text-lg"></i>
+                    <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-brand-pink text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Categorías / Filtros -->
+        <div class="bg-zinc-900 border-t border-zinc-800 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto hide-scrollbar text-xs md:text-sm text-gray-300 whitespace-nowrap">
+                <button onclick="filterCategory('todos')" class="cat-btn text-brand-pink font-bold hover:text-white transition py-1 px-2 rounded bg-zinc-800">Todo el Catálogo</button>
+                <button onclick="filterCategory('Mallas')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Mallas</button>
+                <button onclick="filterCategory('Tenis Hombre')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Tenis Hombre</button>
+                <button onclick="filterCategory('Tenis Mujer')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Tenis Mujer</button>
+                <button onclick="filterCategory('Playeras Hombre')" class="cat-btn hover:text-brand-pink transition py-1 px-2">Playeras Hombre</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CUERPO / CATÁLOGO DE PRODUCTOS -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
+        <div class="flex justify-between items-center mb-6">
+            <h2 id="current-category-title" class="text-xl md:text-2xl font-extrabold text-brand-dark">Catálogo Exclusivo</h2>
+            <span class="text-xs text-gray-500 font-semibold bg-white px-3 py-1 rounded-full shadow-sm">Envíos Locales y Nacionales (México)</span>
+        </div>
+
+        <!-- Grid de Productos -->
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <!-- Los productos se cargan dinámicamente -->
+        </div>
+    </main>
+
+    <!-- MODAL VISTA DE PRODUCTO -->
+    <div id="product-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl my-8">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark text-xl font-bold bg-gray-100 hover:bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Contenido inyectado por JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL DE ADMINISTRADOR PRIVADO -->
+    <div id="admin-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-xl max-w-md w-full p-4 relative shadow-2xl my-4 text-xs md:text-sm">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <h3 class="font-black text-base text-brand-dark flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-brand-pink"></i> Panel Admin - Arencross
                 </h3>
+                <button onclick="closeAdminPanel()" class="text-gray-400 hover:text-brand-dark text-lg font-bold px-2 py-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-                <div class="pt-1">
-                  ${
-                    p.oldPrice
-                      ? `<span class="text-[11px] text-gray-400 line-through block">$${p.oldPrice.toLocaleString("es-MX")} MXN</span>`
-                      : ""
-                  }
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-lg sm:text-xl font-extrabold text-brandBlack">$${p.price.toLocaleString("es-MX")}</span>
-                    <span class="text-[11px] font-semibold text-gray-500">MXN</span>
-                    ${discount > 0 ? `<span class="text-[11px] font-bold text-brandPink">${discount}% OFF</span>` : ""}
-                  </div>
+            <!-- Formulario de Producto -->
+            <form id="product-form" onsubmit="saveProduct(event)" class="space-y-2.5">
+                <input type="hidden" id="prod-id">
+                <div>
+                    <label class="block font-bold text-gray-700 mb-0.5">Nombre del Producto</label>
+                    <input type="text" id="prod-name" required class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none">
                 </div>
-
-                <div class="flex items-center gap-1 text-[11px] text-brandPink pt-0.5">
-                  <i class="fa-solid fa-star"></i>
-                  <span class="font-semibold text-brandBlack">${p.rating}</span>
-                  <span class="text-gray-400">(${p.reviews})</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-0.5">Categoría</label>
+                        <select id="prod-cat" class="w-full border border-gray-300 rounded px-2 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none bg-white">
+                            <option value="Mallas">Mallas</option>
+                            <option value="Tenis Hombre">Tenis Hombre</option>
+                            <option value="Tenis Mujer">Tenis Mujer</option>
+                            <option value="Playeras Hombre">Playeras Hombre</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 mb-0.5">Precio ($ MXN)</label>
+                        <input type="number" id="prod-price" required class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none">
+                    </div>
                 </div>
-              </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-0.5">Imagen (Sube archivo de tu cel o URL)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="prod-img" placeholder="https://... o selecciona archivo" class="flex-1 border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none text-xs">
+                        <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="text-xs w-28 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-brand-pink hover:file:bg-pink-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold text-gray-700 mb-0.5">Descripción</label>
+                    <textarea id="prod-desc" rows="2" class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:ring-2 focus:ring-brand-pink focus:outline-none"></textarea>
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-brand-pink text-white font-bold py-2 rounded shadow hover:bg-brand-pinkdark transition">Guardar Producto</button>
+                    <button type="button" onclick="resetForm()" class="bg-gray-200 text-gray-700 px-3 py-2 rounded hover:bg-gray-300 font-semibold">Cancelar</button>
+                </div>
+            </form>
+
+            <!-- Lista de administración -->
+            <div class="mt-4 pt-3 border-t border-gray-200">
+                <h4 class="font-bold text-gray-800 mb-2">Inventario Actual</h4>
+                <div id="admin-product-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARRITO Y CHECKOUT MODAL -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleCart()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark text-xl font-bold bg-gray-100 hover:bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-black mb-4 text-brand-dark flex items-center gap-2">
+                <i class="fa-solid fa-cart-shopping text-brand-pink"></i> Tu Carrito - Arencross
+            </h3>
+            
+            <div id="cart-items" class="divide-y divide-gray-100 max-h-48 overflow-y-auto mb-4"></div>
+
+            <!-- Cotizador de Envíos SkydropX / México -->
+            <div class="bg-gray-50 p-4 rounded-xl mb-4 border border-gray-200">
+                <h4 class="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-truck-fast text-brand-pink"></i> Cotizar Envío (SkydropX México)
+                </h4>
+                <div class="flex gap-2">
+                    <input type="text" id="postal-code" placeholder="Código Postal (Ej. 32000)" maxlength="5" class="flex-1 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-pink">
+                    <button onclick="calculateShipping()" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">Cotizar</button>
+                </div>
+                <div id="shipping-result" class="mt-2 text-xs text-gray-600"></div>
             </div>
 
-            <div class="px-3 sm:px-4 pb-3 pt-1 flex items-center justify-between text-[11px] text-gray-500 border-t border-gray-50">
-              <span><i class="fa-solid fa-location-dot text-brandPink mr-1"></i>Cd. Juárez</span>
-              <span class="text-brandBlack font-bold group-hover:text-brandPink">Ver tallas →</span>
+            <!-- Totales -->
+            <div class="border-t border-gray-200 pt-3 space-y-1 mb-4 text-sm">
+                <div class="flex justify-between text-gray-600">
+                    <span>Subtotal:</span>
+                    <span id="cart-subtotal">$0 MXN</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>Envío:</span>
+                    <span id="cart-shipping-cost">$0 MXN</span>
+                </div>
+                <div class="flex justify-between text-lg font-black text-brand-dark pt-1 border-t border-gray-100">
+                    <span>Total a Pagar:</span>
+                    <span id="cart-total" class="text-brand-pink">$0 MXN</span>
+                </div>
             </div>
-          </article>
-        `;
-        })
-        .join("");
-    }
 
-    // FILTER & SEARCH HANDLERS
-    function filterByCategory(cat) {
-      currentCategory = cat;
-      document.getElementById("catalog-title").textContent = cat === "Todos" ? "Productos Destacados" : cat;
-
-      document.querySelectorAll(".cat-btn").forEach((btn) => {
-        if (btn.dataset.cat === cat) {
-          btn.className = "cat-btn px-3 py-1 rounded-full font-semibold bg-brandPink text-white text-xs transition";
-        } else {
-          btn.className = "cat-btn px-3 py-1 rounded-full hover:bg-white/10 text-white text-xs transition";
-        }
-      });
-      renderProducts();
-    }
-
-    function handleSearch(query) {
-      currentSearch = query;
-      document.getElementById("search-input-desktop").value = query;
-      document.getElementById("search-input-mobile").value = query;
-      renderProducts();
-    }
-
-    function handleSort(val) {
-      currentSort = val;
-      renderProducts();
-    }
-
-    function resetFilters() {
-      currentCategory = "Todos";
-      currentSearch = "";
-      currentSort = "featured";
-      document.getElementById("search-input-desktop").value = "";
-      document.getElementById("search-input-mobile").value = "";
-      document.getElementById("sort-select").value = "featured";
-      filterByCategory("Todos");
-    }
-
-    // HERO SLIDER
-    function changeSlide(dir) {
-      const slides = document.querySelectorAll(".hero-slide");
-      slides[currentSlideIndex].classList.add("hidden");
-      currentSlideIndex = (currentSlideIndex + dir + slides.length) % slides.length;
-      slides[currentSlideIndex].classList.remove("hidden");
-    }
-
-    // 4. PRODUCT DETAIL MODAL & ZOOM
-    function openProductModal(id) {
-      const product = products.find((p) => p.id === id);
-      if (!product) return;
-      activeProduct = product;
-      selectedVariant = product.variants && product.variants.length > 0 ? product.variants[0] : "Única";
-
-      document.getElementById("modal-breadcrumb").textContent = `Arencross-shopstore > ${product.category} > ${product.name}`;
-      document.getElementById("modal-title").textContent = product.name;
-      document.getElementById("modal-price").textContent = `$${product.price.toLocaleString("es-MX")}`;
-      document.getElementById("modal-old-price").textContent = product.oldPrice
-        ? `$${product.oldPrice.toLocaleString("es-MX")} MXN`
-        : "";
-      document.getElementById("modal-reviews-count").textContent = `(${product.reviews} opiniones verificadas)`;
-      document.getElementById("modal-description").textContent = product.description;
-
-      // Stars
-      const fullStars = Math.floor(product.rating);
-      let starsHtml = "";
-      for (let i = 0; i < 5; i++) {
-        starsHtml += i < fullStars ? '<i class="fa-solid fa-star"></i>' : '<i class="fa-regular fa-star"></i>';
-      }
-      document.getElementById("modal-stars").innerHTML = starsHtml;
-
-      // Images & Thumbnails
-      const mainImg = document.getElementById("modal-main-img");
-      mainImg.src = product.images[0];
-      const thumbsContainer = document.getElementById("modal-thumbnails");
-      thumbsContainer.innerHTML = product.images
-        .map(
-          (img, idx) => `
-          <button
-            onclick="selectModalImage('${img}', this)"
-            class="thumb-btn w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 ${
-              idx === 0 ? "border-brandPink" : "border-gray-200"
-            } p-1 bg-white shrink-0 overflow-hidden hover:border-brandPink transition"
-          >
-            <img src="${img}" class="w-full h-full object-contain" />
-          </button>
-        `
-        )
-        .join("");
-
-      // Variants & WhatsApp link
-      renderModalVariants();
-      updateModalWhatsAppLink();
-
-      // Render Q&A
-      renderModalQnA();
-
-      document.getElementById("product-modal").classList.remove("hidden");
-    }
-
-    function updateModalWhatsAppLink() {
-      if (!activeProduct) return;
-      const waText = encodeURIComponent(
-        `Hola Arencross-shopstore Cd. Juárez, me interesa: "${activeProduct.name}" en talla/opción *${selectedVariant}* ($${activeProduct.price} MXN). ¿Tienen disponibilidad?`
-      );
-      document.getElementById("modal-whatsapp-btn").href = `https://wa.me/${STORE_WHATSAPP}?text=${waText}`;
-    }
-
-    function closeProductModal() {
-      document.getElementById("product-modal").classList.add("hidden");
-    }
-
-    function selectModalImage(url, btn) {
-      document.getElementById("modal-main-img").src = url;
-      document.querySelectorAll(".thumb-btn").forEach((b) => b.classList.replace("border-brandPink", "border-gray-200"));
-      btn.classList.replace("border-gray-200", "border-brandPink");
-    }
-
-    function renderModalVariants() {
-      const container = document.getElementById("modal-variants");
-      if (!activeProduct.variants || activeProduct.variants.length === 0) {
-        container.innerHTML = `<span class="text-xs text-gray-500">Talla única</span>`;
-        return;
-      }
-      container.innerHTML = activeProduct.variants
-        .map(
-          (v) => `
-          <button
-            onclick="selectVariant('${v}')"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-bold border transition ${
-              selectedVariant === v
-                ? "border-brandPink bg-brandPink text-white shadow-2xs"
-                : "border-gray-300 text-brandBlack hover:border-brandPink"
-            }"
-          >
-            ${v}
-          </button>
-        `
-        )
-        .join("");
-    }
-
-    function selectVariant(v) {
-      selectedVariant = v;
-      renderModalVariants();
-      updateModalWhatsAppLink();
-    }
-
-    function handleImageZoom(e, container) {
-      const img = container.querySelector("img");
-      const rect = container.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      img.style.transformOrigin = `${x}% ${y}%`;
-    }
-
-    function resetImageZoom(container) {
-      const img = container.querySelector("img");
-      img.style.transformOrigin = "center center";
-    }
-
-    function renderModalQnA() {
-      const list = document.getElementById("qa-list");
-      if (!activeProduct.qna || activeProduct.qna.length === 0) {
-        list.innerHTML = `<p class="text-xs text-gray-400 italic">Aún no hay preguntas. ¡Sé el primero en preguntar!</p>`;
-        return;
-      }
-      list.innerHTML = activeProduct.qna
-        .map(
-          (item) => `
-          <div class="bg-gray-50 p-2.5 rounded-lg text-xs space-y-1 border border-gray-100">
-            <p class="font-semibold text-brandBlack"><i class="fa-regular fa-comment-dots text-brandPink mr-1"></i> ${item.q}</p>
-            <p class="text-gray-600 pl-4 border-l-2 border-brandPink">${item.a}</p>
-          </div>
-        `
-        )
-        .join("");
-    }
-
-    function submitQuestion() {
-      const input = document.getElementById("qa-input");
-      const text = input.value.trim();
-      if (!text || !activeProduct) return;
-
-      activeProduct.qna.unshift({
-        q: text,
-        a: "¡Hola! Gracias por escribir a Arencross-shopstore Cd. Juárez. Sí contamos con disponibilidad inmediata en esa talla para envío local o nacional por SkydropX."
-      });
-      input.value = "";
-      renderModalQnA();
-      showToast("Pregunta publicada y respondida por la tienda", "success");
-    }
-
-    // 5. CART & SKYDROPX SHIPPING LOGIC
-    function addToCartFromModal(buyNow) {
-      if (!activeProduct) return;
-      const existing = cart.find((item) => item.id === activeProduct.id && item.variant === selectedVariant);
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        cart.push({
-          id: activeProduct.id,
-          name: activeProduct.name,
-          price: activeProduct.price,
-          image: activeProduct.images[0],
-          variant: selectedVariant,
-          qty: 1
-        });
-      }
-
-      updateCartUI();
-      closeProductModal();
-      toggleCart(true);
-
-      if (buyNow) {
-        switchCheckoutStep("payment");
-      } else {
-        showToast("Producto agregado al carrito", "success");
-      }
-    }
-
-    function updateCartQty(index, delta) {
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) {
-        cart.splice(index, 1);
-      }
-      updateCartUI();
-    }
-
-    function toggleCart(open) {
-      const drawer = document.getElementById("cart-drawer");
-      const backdrop = document.getElementById("cart-drawer-backdrop");
-      if (open) {
-        backdrop.classList.remove("hidden");
-        drawer.classList.remove("translate-x-full");
-        if (!selectedShipping && userCp) {
-          document.getElementById("cp-input").value = userCp;
-          quoteSkydropX(true);
-        }
-      } else {
-        drawer.classList.add("translate-x-full");
-        backdrop.classList.add("hidden");
-      }
-    }
-
-    function switchCheckoutStep(step) {
-      if (step === "payment" && cart.length === 0) {
-        showToast("Agrega al menos un producto al carrito", "error");
-        return;
-      }
-      checkoutStep = step;
-      const stepCart = document.getElementById("step-cart");
-      const stepPay = document.getElementById("step-payment");
-      const tabCart = document.getElementById("tab-cart-btn");
-      const tabPay = document.getElementById("tab-pay-btn");
-      const primaryBtn = document.getElementById("checkout-primary-btn");
-
-      if (step === "cart") {
-        stepCart.classList.remove("hidden");
-        stepPay.classList.add("hidden");
-        tabCart.className = "py-2.5 text-brandPink border-b-2 border-brandPink bg-white";
-        tabPay.className = "py-2.5 text-gray-500";
-        primaryBtn.textContent = "Continuar al Pago (MXN)";
-      } else {
-        stepCart.classList.add("hidden");
-        stepPay.classList.remove("hidden");
-        tabPay.className = "py-2.5 text-brandPink border-b-2 border-brandPink bg-white";
-        tabCart.className = "py-2.5 text-gray-500";
-        primaryBtn.textContent = "Finalizar Compra Segura";
-      }
-    }
-
-    // SKYDROPX SHIPPING QUOTER (LOCAL JUÁREZ & NATIONAL MEXICO ONLY)
-    function quoteSkydropX(silent = false) {
-      const cp = document.getElementById("cp-input").value.trim();
-      if (!/^\d{5}$/.test(cp)) {
-        if (!silent) showToast("Ingresa un Código Postal mexicano válido de 5 dígitos", "error");
-        return;
-      }
-
-      userCp = cp;
-      document.getElementById("header-cp-display").textContent =
-        cp.startsWith("32") ? `Cd. Juárez CP ${cp}` : `México CP ${cp}`;
-
-      const list = document.getElementById("shipping-options-list");
-      let rates = [];
-
-      if (cp.startsWith("32")) {
-        rates = [
-          {
-            carrier: "Arencross Local Express",
-            service: "Entrega Hoy Mismo en Cd. Juárez",
-            eta: "Hoy antes de las 8:00 PM",
-            price: 65
-          },
-          {
-            carrier: "Estafeta (vía SkydropX)",
-            service: "Terrestre Local Chihuahua",
-            eta: "1 a 2 días hábiles",
-            price: 95
-          },
-          {
-            carrier: "Redpack (vía SkydropX)",
-            service: "EcoExpress Local",
-            eta: "1 a 2 días hábiles",
-            price: 85
-          }
-        ];
-      } else {
-        rates = [
-          {
-            carrier: "Estafeta (vía SkydropX)",
-            service: "Terrestre Nacional México",
-            eta: "3 a 5 días hábiles",
-            price: 135
-          },
-          {
-            carrier: "Redpack (vía SkydropX)",
-            service: "Estándar Nacional",
-            eta: "3 a 4 días hábiles",
-            price: 125
-          },
-          {
-            carrier: "FedEx (vía SkydropX)",
-            service: "Nacional Económico",
-            eta: "2 a 4 días hábiles",
-            price: 159
-          },
-          {
-            carrier: "DHL Express (vía SkydropX)",
-            service: "Día Siguiente Aéreo MX",
-            eta: "1 a 2 días hábiles",
-            price: 215
-          }
-        ];
-      }
-
-      selectedShipping = rates[0];
-
-      list.innerHTML = rates
-        .map(
-          (r, idx) => `
-          <label
-            onclick='selectShippingRate(${JSON.stringify(r)})'
-            class="flex items-center justify-between p-2.5 rounded-lg border cursor-pointer text-xs transition ${
-              idx === 0 ? "border-brandPink bg-brandPinkLight/50" : "border-gray-200 bg-white hover:bg-gray-50"
-            }"
-          >
-            <div class="flex items-center gap-2">
-              <input type="radio" name="shipping-rate" ${idx === 0 ? "checked" : ""} class="accent-brandPink" />
-              <div>
-                <span class="font-bold text-brandBlack block">${r.carrier}</span>
-                <span class="text-[11px] text-gray-500">${r.service} • ${r.eta}</span>
-              </div>
+            <!-- Métodos de Pago Nacionales (Con CLABE SPEI Fija) -->
+            <div class="mb-5">
+                <label class="block font-bold text-sm text-gray-700 mb-2">Método de Pago (México - MXN):</label>
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <button type="button" onclick="selectPayment('tarjeta')" id="pay-tarjeta" class="p-2 border-2 border-brand-pink bg-pink-50 rounded-xl text-xs font-bold text-center transition">Tarjeta</button>
+                    <button type="button" onclick="selectPayment('spei')" id="pay-spei" class="p-2 border-2 border-gray-200 rounded-xl text-xs font-bold text-center transition">SPEI</button>
+                    <button type="button" onclick="selectPayment('oxxo')" id="pay-oxxo" class="p-2 border-2 border-gray-200 rounded-xl text-xs font-bold text-center transition">OXXO Pay</button>
+                </div>
+                
+                <!-- Caja informativa con la CLABE SPEI fija -->
+                <div id="spei-info-box" class="hidden bg-pink-50 border border-pink-200 p-3 rounded-xl text-xs text-gray-700">
+                    <p class="font-bold text-brand-pink mb-1"><i class="fa-solid fa-building-columns"></i> CLABE Interbancaria SPEI:</p>
+                    <p class="font-mono bg-white p-1.5 rounded border border-pink-100 select-all font-bold text-sm text-center">721180100034025723</p>
+                    <p class="text-[11px] text-gray-500 mt-1">Realiza tu transferencia y envía tu comprobante por WhatsApp.</p>
+                </div>
             </div>
-            <span class="font-bold text-brandBlack">$${r.price} MXN</span>
-          </label>
-        `
-        )
-        .join("");
 
-      updateCartUI();
-      if (!silent) showToast(`Tarifas SkydropX actualizadas para CP ${cp}`, "success");
-    }
+            <button onclick="checkoutOrder()" class="w-full bg-brand-pink hover:bg-brand-pinkdark text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Confirmar Pedido por WhatsApp
+            </button>
+        </div>
+    </div>
 
-    function selectShippingRate(rate) {
-      selectedShipping = rate;
-      updateCartUI();
-    }
+    <!-- FOOTER -->
+    <footer class="bg-brand-dark text-white mt-12 py-6 border-t border-zinc-800 text-center text-xs">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-bold text-sm">Arencross-shopstore CD. JUÁREZ, CHIH.</p>
+            <p class="text-gray-400">Venta exclusiva en territorio nacional • Envíos seguros con SkydropX • Pagos locales</p>
+            <p class="text-gray-500 pt-2">&copy; 2026 Arencross-shopstore. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-    function updateCartUI() {
-      const badge = document.getElementById("cart-badge");
-      const container = document.getElementById("cart-items-container");
-      const subtotalEl = document.getElementById("cart-subtotal");
-      const shipLabelEl = document.getElementById("cart-shipping-label");
-      const shipCostEl = document.getElementById("cart-shipping-cost");
-      const totalEl = document.getElementById("cart-total");
-
-      const totalItems = cart.reduce((acc, item) => acc + item.qty, 0);
-      badge.textContent = totalItems;
-
-      if (cart.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-8 space-y-2">
-            <i class="fa-solid fa-basket-shopping text-3xl text-gray-300"></i>
-            <p class="text-sm font-semibold text-gray-600">Tu carrito está vacío</p>
-            <p class="text-xs text-gray-400">Explora mallas, tenis y playeras de Arencross-shopstore.</p>
-          </div>
-        `;
-        subtotalEl.textContent = "$0.00 MXN";
-        shipCostEl.textContent = "$0.00 MXN";
-        totalEl.textContent = "$0.00 MXN";
-        return;
-      }
-
-      container.innerHTML = cart
-        .map(
-          (item, idx) => `
-          <div class="flex gap-3 bg-white border border-gray-200 rounded-xl p-2.5 items-center">
-            <img src="${item.image}" class="w-14 h-14 object-contain rounded-lg border border-gray-100 p-1 shrink-0" />
-            <div class="flex-1 min-w-0">
-              <h4 class="text-xs font-semibold text-brandBlack truncate">${item.name}</h4>
-              <span class="text-[11px] text-brandPink font-semibold block">Talla: ${item.variant}</span>
-              <span class="text-xs font-bold text-brandBlack mt-0.5 block">$${(item.price * item.qty).toLocaleString("es-MX")} MXN</span>
-            </div>
-            <div class="flex items-center gap-1.5 bg-gray-100 rounded-lg px-2 py-1">
-              <button onclick="updateCartQty(${idx}, -1)" class="text-xs font-bold text-brandPink px-1">-</button>
-              <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-              <button onclick="updateCartQty(${idx}, 1)" class="text-xs font-bold text-brandPink px-1">+</button>
-            </div>
-          </div>
-        `
-        )
-        .join("");
-
-      const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-      const shippingCost = selectedShipping ? selectedShipping.price : 0;
-      const total = subtotal + shippingCost;
-
-      subtotalEl.textContent = formatMXN(subtotal);
-      shipLabelEl.textContent = selectedShipping ? `${selectedShipping.carrier} (CP ${userCp})` : "Por cotizar";
-      shipCostEl.textContent = formatMXN(shippingCost);
-      totalEl.textContent = formatMXN(total);
-    }
-
-    // PAYMENT METHOD DETAILS TOGGLE
-    function togglePaymentDetails(method) {
-      document.getElementById("pay-details-card").classList.toggle("hidden", method !== "card");
-      document.getElementById("pay-details-spei").classList.toggle("hidden", method !== "spei");
-      document.getElementById("pay-details-oxxo").classList.toggle("hidden", method !== "oxxo");
-    }
-
-    function copyText(text) {
-      const temp = document.createElement("textarea");
-      temp.value = text;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand("copy");
-      document.body.removeChild(temp);
-      showToast("CLABE interbancaria copiada al portapapeles", "success");
-    }
-
-    function handleCheckoutPrimaryAction() {
-      if (cart.length === 0) {
-        showToast("Tu carrito está vacío", "error");
-        return;
-      }
-      if (checkoutStep === "cart") {
-        if (!selectedShipping) {
-          showToast("Por favor cotiza tu Código Postal en SkydropX", "error");
-          return;
-        }
-        switchCheckoutStep("payment");
-        return;
-      }
-
-      const custName = document.getElementById("cust-name").value.trim() || "Cliente México";
-      const payMethod = document.querySelector('input[name="pay-method"]:checked').value;
-      const subtotal = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-      const shippingCost = selectedShipping ? selectedShipping.price : 0;
-      const total = subtotal + shippingCost;
-      const orderFolio = "ARC-" + Math.floor(100000 + Math.random() * 900000);
-
-      const itemsSummary = cart.map((i) => `${i.qty}x ${i.name} (${i.variant})`).join(", ");
-
-      const methodNames = {
-        card: "Tarjeta Crédito/Débito (MXN)",
-        spei: "Transferencia SPEI (CLABE 646180157042891034)",
-        oxxo: "Efectivo OXXO (Ref: 9800-3200-4589-1120)"
-      };
-
-      const receiptHtml = `
-        <div class="flex justify-between"><span class="text-gray-500">Folio de pedido:</span><span class="font-bold text-brandBlack">${orderFolio}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span class="font-semibold">${custName}</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Paquetería SkydropX:</span><span class="font-semibold">${selectedShipping.carrier} (CP ${userCp})</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">Método de pago:</span><span class="font-semibold">${methodNames[payMethod]}</span></div>
-        <div class="flex justify-between border-t border-gray-200 pt-1.5 text-sm"><span class="font-bold">Total MXN:</span><span class="font-extrabold text-brandPink">${formatMXN(total)}</span></div>
-      `;
-
-      document.getElementById("order-receipt-box").innerHTML = receiptHtml;
-
-      const waConfirmText = encodeURIComponent(
-        `¡Hola Arencross-shopstore Cd. Juárez! Acabo de generar mi pedido *${orderFolio}* por *${formatMXN(total)}*.\nArtículos: ${itemsSummary}\nMétodo: ${methodNames[payMethod]}\nEnvío: ${selectedShipping.carrier} al CP ${userCp}.`
-      );
-      document.getElementById("order-whatsapp-confirm").href = `https://wa.me/${STORE_WHATSAPP}?text=${waConfirmText}`;
-
-      cart = [];
-      updateCartUI();
-      switchCheckoutStep("cart");
-      toggleCart(false);
-      document.getElementById("order-success-modal").classList.remove("hidden");
-    }
-
-    function closeOrderSuccessModal() {
-      document.getElementById("order-success-modal").classList.add("hidden");
-    }
-
-    // 6. PRIVATE OWNER INVENTORY PANEL (ADD, EDIT, DELETE)
-    function openAdminModal() {
-      renderAdminInventory();
-      document.getElementById("admin-modal").classList.remove("hidden");
-    }
-
-    function closeAdminModal() {
-      resetAdminForm();
-      document.getElementById("admin-modal").classList.add("hidden");
-    }
-
-    function renderAdminInventory() {
-      const list = document.getElementById("admin-inventory-list");
-      document.getElementById("admin-inv-count").textContent = products.length;
-      list.innerHTML = products
-        .map(
-          (p) => `
-          <div class="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-lg p-2 text-xs">
-            <div class="flex items-center gap-2 min-w-0">
-              <img src="${p.images[0]}" class="w-9 h-9 object-contain bg-white rounded border border-gray-100 shrink-0" />
-              <div class="min-w-0">
-                <p class="font-bold text-brandBlack truncate">${p.name}</p>
-                <p class="text-[11px] text-gray-500">${p.category} • $${p.price} MXN • Tallas: ${p.variants.join(", ")}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-1 shrink-0">
-              <button onclick="editProduct(${p.id})" class="px-2 py-1 rounded bg-brandBlack text-white hover:bg-brandPink transition" title="Editar">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              <button onclick="deleteProduct(${p.id})" class="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition" title="Eliminar">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        `
-        )
-        .join("");
-    }
-
-    function editProduct(id) {
-      const p = products.find((item) => item.id === id);
-      if (!p) return;
-      document.getElementById("admin-edit-id").value = p.id;
-      document.getElementById("admin-form-title").textContent = "Editando Producto";
-      document.getElementById("admin-cancel-edit-btn").classList.remove("hidden");
-      document.getElementById("admin-submit-btn").textContent = "Actualizar Producto";
-
-      document.getElementById("admin-prod-name").value = p.name;
-      document.getElementById("admin-prod-price").value = p.price;
-      document.getElementById("admin-prod-cat").value = p.category;
-      document.getElementById("admin-prod-variants").value = p.variants.join(", ");
-      document.getElementById("admin-prod-img").value = p.images[0];
-      document.getElementById("admin-prod-desc").value = p.description;
-    }
-
-    function deleteProduct(id) {
-      products = products.filter((p) => p.id !== id);
-      renderProducts();
-      renderAdminInventory();
-      showToast("Producto eliminado del catálogo", "info");
-    }
-
-    function resetAdminForm() {
-      document.getElementById("add-product-form").reset();
-      document.getElementById("admin-edit-id").value = "";
-      document.getElementById("admin-form-title").textContent = "Publicar Nuevo Producto";
-      document.getElementById("admin-cancel-edit-btn").classList.add("hidden");
-      document.getElementById("admin-submit-btn").textContent = "Guardar en Catálogo";
-    }
-
-    function handleSaveProduct(e) {
-      e.preventDefault();
-      const editId = document.getElementById("admin-edit-id").value;
-      const name = document.getElementById("admin-prod-name").value.trim();
-      const price = parseFloat(document.getElementById("admin-prod-price").value);
-      const category = document.getElementById("admin-prod-cat").value;
-      const variantsRaw = document.getElementById("admin-prod-variants").value.trim();
-      const imgUrl =
-        document.getElementById("admin-prod-img").value.trim() ||
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80";
-      const desc =
-        document.getElementById("admin-prod-desc").value.trim() ||
-        "Producto oficial disponible en Arencross-shopstore Ciudad Juárez, Chihuahua. Envío rápido local y nacional por SkydropX.";
-
-      const variants = variantsRaw
-        ? variantsRaw.split(",").map((v) => v.trim()).filter(Boolean)
-        : ["M", "L"];
-
-      if (editId) {
-        const idx = products.findIndex((p) => p.id === Number(editId));
-        if (idx !== -1) {
-          products[idx] = {
-            ...products[idx],
-            name,
-            price,
-            category,
-            variants,
-            images: [imgUrl, ...products[idx].images.slice(1)],
-            description: desc
-          };
-          showToast("Producto actualizado correctamente", "success");
-        }
-      } else {
-        const newProduct = {
-          id: Date.now(),
-          name,
-          price,
-          oldPrice: Math.round(price * 1.25),
-          category,
-          rating: 5.0,
-          reviews: 1,
-          badge: "Nuevo en Juárez",
-          freeShipping: price >= 500,
-          variants,
-          images: [imgUrl],
-          description: desc,
-          qna: []
-        };
-        products.unshift(newProduct);
-        showToast(`¡"${name}" publicado en ${category}!`, "success");
-      }
-
-      renderProducts();
-      renderAdminInventory();
-      resetAdminForm();
-    }
-
-    // 7. QUICK CP MODAL IN HEADER
-    function openCpQuickModal() {
-      document.getElementById("quick-cp-input").value = userCp;
-      document.getElementById("cp-quick-modal").classList.remove("hidden");
-    }
-
-    function closeCpQuickModal() {
-      document.getElementById("cp-quick-modal").classList.add("hidden");
-    }
-
-    function saveQuickCp() {
-      const cp = document.getElementById("quick-cp-input").value.trim();
-      if (!/^\d{5}$/.test(cp)) {
-        showToast("Ingresa un Código Postal mexicano de 5 dígitos", "error");
-        return;
-      }
-      userCp = cp;
-      document.getElementById("cp-input").value = cp;
-      quoteSkydropX(true);
-      closeCpQuickModal();
-      showToast(`Ubicación actualizada a CP ${cp}`, "success");
-    }
-
-    // INITIALIZE STORE ON LOAD
-    window.addEventListener("DOMContentLoaded", () => {
-      renderProducts();
-      updateCartUI();
-
-      // Check URL parameter ?admin=1 or #admin for private owner access
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("admin") === "1" || window.location.hash === "#admin") {
-        openPinModal();
-      }
-    });
-  </script>
-</body>
-</html>
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // Catálogo Inicial
+        let products = JSON.parse(localStorage.getItem('arencross_
