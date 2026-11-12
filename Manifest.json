@@ -1,0 +1,15 @@
+{
+  "name": "Arencross-shopstore Cd. Juárez",
+  "short_name": "Arencross",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f11",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "https://placehold.co/512x512/0f0f11/ec4899?text=A",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
