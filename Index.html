@@ -61,6 +61,23 @@
                 <i class="fa-solid fa-circle text-[7px] animate-pulse"></i> En vivo
             </span>
         </div>
+
+        <!-- BANNER PAQUETES DE CAMISAS SOLO EN "TODO" -->
+        <div id="todo-packages-banner" class="mb-4 bg-white rounded-2xl shadow-md border border-pink-200 overflow-hidden">
+            <div class="p-3 bg-gradient-to-r from-brand-dark via-zinc-900 to-brand-dark text-white flex flex-col sm:flex-row items-center gap-3">
+                <img src="https://i.ibb.co/placeholder-paquetes-camisas.jpg" id="packages-promo-img" alt="Paquetes de Camisas Calidad Premium" class="w-full sm:w-36 h-44 object-cover rounded-xl border border-pink-400/40 bg-zinc-800">
+                <div class="flex-1 text-center sm:text-left space-y-1.5">
+                    <span class="inline-block bg-brand-pink text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Exclusivo Venta por WhatsApp</span>
+                    <h3 class="text-sm font-black">Paquetes de Camisas · Algodón Peinado Bordado 3D</h3>
+                    <p class="text-[11px] text-gray-300">Venta exclusiva por WhatsApp: <strong>sin agregarse al carrito</strong> y <strong>sin calcular envío</strong> (envío nacional incluido según paquete).</p>
+                    <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20quiero%20informes%20de%20los%20Paquetes%20de%20Camisas." target="_blank"
+                       class="inline-flex items-center gap-1.5 bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">
+                        <i class="fa-brands fa-whatsapp text-sm"></i> Pedir Paquete por WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+
         <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div class="col-span-full text-center py-8 text-gray-400 text-xs">Cargando catálogo...</div>
         </div>
@@ -77,6 +94,15 @@
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 relative shadow-2xl">
             <button onclick="closeProductModal()" class="absolute top-3 right-3 text-gray-500 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
             <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PAGO DIRECTO EN TIENDA (NO ENVÍA A WHATSAPP) -->
+    <div id="direct-pay-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 relative shadow-2xl text-xs">
+            <button onclick="closeDirectPayModal()" class="absolute top-3 right-3 text-gray-500 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
+            <h3 class="text-sm font-black text-brand-dark mb-2"><i class="fa-solid fa-credit-card text-brand-pink"></i> Pago Directo en Tienda</h3>
+            <div id="direct-pay-content" class="space-y-2"></div>
         </div>
     </div>
 
@@ -194,7 +220,6 @@
         let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
         const WHATSAPP_NUMBER = '15756548307';
 
-        // ESCUCHA EN TIEMPO REAL: Actualiza a todos los usuarios automáticamente
         onSnapshot(productsCol, (snapshot) => {
             products = snapshot.docs.map(docSnap => ({
                 id: docSnap.id,
@@ -219,6 +244,10 @@
         });
 
         function applyCurrentFilter() {
+            const banner = document.getElementById('todo-packages-banner');
+            if (banner) {
+                banner.classList.toggle('hidden', currentCategory !== 'todos');
+            }
             const q = document.getElementById('search-input').value.toLowerCase();
             let filtered = currentCategory === 'todos' ? products : products.filter(p => p.cat === currentCategory);
             if (q) {
@@ -245,10 +274,34 @@
                                 <p class="text-sm font-black mt-1">$${Number(p.price).toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
                             </div>
                         </div>
-                        <div class="p-2 pt-0"><button onclick="addToCart('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button></div>
+                        <div class="p-2 pt-0 space-y-1">
+                            <button onclick="addToCart('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button>
+                            <button onclick="openDirectPay('${p.id}')" class="w-full bg-brand-pink text-white font-bold py-1.5 rounded text-[11px]">Pagar</button>
+                        </div>
                     </div>
                 `;
             });
+        };
+
+        window.openDirectPay = function(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+            document.getElementById('direct-pay-content').innerHTML = `
+                <div class="flex items-center gap-2 border-b pb-2">
+                    <img src="${p.img}" class="w-12 h-12 object-cover rounded">
+                    <div>
+                        <p class="font-bold text-xs">${p.name}</p>
+                        <p class="font-black text-brand-pink text-sm">$${Number(p.price).toLocaleString()} MXN</p>
+                    </div>
+                </div>
+                <p class="text-[11px] text-gray-600">Pago directo en tienda sin redirigir a WhatsApp. CLABE SPEI: <strong class="font-mono select-all">721180100034025723</strong></p>
+                <button onclick="closeDirectPayModal(); alert('Solicitud de pago directo registrada en tienda para ${p.name.replace(/'/g, '')}.');" class="w-full bg-brand-dark text-white font-bold py-2 rounded-lg text-xs">Confirmar Pago en Tienda</button>
+            `;
+            document.getElementById('direct-pay-modal').classList.remove('hidden');
+        };
+
+        window.closeDirectPayModal = function() {
+            document.getElementById('direct-pay-modal').classList.add('hidden');
         };
 
         window.filterCategory = function(cat) {
