@@ -62,8 +62,8 @@
         <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
     </main>
 
-    <!-- BOTÓN WHATSAPP FLOTANTE CON TU NÚMERO CORRECTO -->
-    <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20tengo%20una%20duda%20sobre%20sus%20productos." target="_blank"
+    <!-- BOTÓN WHATSAPP FLOTANTE -->
+    <a id="floating-whatsapp-btn" href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20tengo%20una%20duda%20sobre%20sus%20productos." target="_blank"
        class="fixed bottom-20 right-4 z-40 bg-emerald-500 hover:bg-emerald-600 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-2xl transition transform hover:scale-105">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
@@ -83,8 +83,22 @@
                 <h3 class="font-black text-sm text-brand-dark"><i class="fa-solid fa-lock text-brand-pink"></i> Admin Arencross</h3>
                 <button onclick="closeAdminPanel()" class="text-gray-500 font-bold text-base px-2">✕</button>
             </div>
+
+            <!-- Configuración rápida de WhatsApp -->
+            <div class="mb-2 pb-2 border-b bg-gray-50 p-2 rounded">
+                <label class="block font-bold text-gray-700 text-[10px] mb-1">WhatsApp de Ventas (con código de país):</label>
+                <div class="flex gap-1">
+                    <input type="text" id="admin-wa-input" class="flex-1 border rounded px-2 py-1 text-xs font-mono">
+                    <button type="button" onclick="saveWhatsappNumber()" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Guardar WA</button>
+                </div>
+            </div>
+
             <form id="product-form" onsubmit="saveProduct(event)" class="space-y-2">
                 <input type="hidden" id="prod-id">
+                <div class="flex justify-between items-center">
+                    <span id="form-mode-label" class="font-black text-brand-pink text-[11px]">Nuevo Producto</span>
+                    <button type="button" onclick="resetForm()" class="text-[10px] text-gray-500 underline">Limpiar</button>
+                </div>
                 <div>
                     <label class="block font-bold text-gray-700 text-[11px]">Nombre</label>
                     <input type="text" id="prod-name" required class="w-full border rounded px-2 py-1 text-xs">
@@ -105,21 +119,25 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 text-[11px]">Foto (Galería o Link)</label>
+                    <label class="block font-bold text-gray-700 text-[11px]">Imagen (Galería o Link)</label>
                     <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="w-full text-[11px] mb-1">
-                    <input type="text" id="prod-img" placeholder="O pega link" class="w-full border rounded px-2 py-1 text-[11px]">
+                    <input type="text" id="prod-img" placeholder="Pega enlace de imagen o sube foto" class="w-full border rounded px-2 py-1 text-[11px]">
+                    <img id="prod-img-preview" src="" alt="" class="hidden w-full h-20 object-cover rounded mt-1 border bg-gray-100">
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 text-[11px]">Descripción</label>
-                    <input type="text" id="prod-desc" class="w-full border rounded px-2 py-1 text-xs">
+                    <label class="block font-bold text-gray-700 text-[11px]">Descripción / Texto del producto</label>
+                    <textarea id="prod-desc" rows="2" class="w-full border rounded px-2 py-1 text-xs" placeholder="Detalles, tela, talla o estilo..."></textarea>
                 </div>
                 <div class="flex gap-1.5 pt-1">
-                    <button type="submit" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs">Guardar</button>
-                    <button type="button" onclick="resetForm()" class="bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold">Limpiar</button>
+                    <button type="submit" id="save-prod-btn" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs">Guardar Producto</button>
                 </div>
             </form>
+
             <div class="mt-3 pt-2 border-t">
-                <h4 class="font-bold text-gray-800 text-[11px] mb-1">Tus Productos:</h4>
+                <div class="flex justify-between items-center mb-1">
+                    <h4 class="font-bold text-gray-800 text-[11px]">Tus Productos (toca Editar):</h4>
+                    <button type="button" onclick="copyCatalogJSON()" class="text-[10px] bg-zinc-800 text-white px-2 py-0.5 rounded font-bold">Copiar Datos</button>
+                </div>
                 <div id="admin-product-list" class="space-y-1 max-h-28 overflow-y-auto"></div>
             </div>
         </div>
@@ -163,6 +181,9 @@
     </div>
 
     <script>
+        const DEFAULT_WHATSAPP = '15756548307';
+        let WHATSAPP_NUMBER = localStorage.getItem('arencross_whatsapp') || DEFAULT_WHATSAPP;
+
         let products = JSON.parse(localStorage.getItem('arencross_products')) || [
             { id: 1, name: 'Malla Deportiva Pro', cat: 'Mallas', price: 450, img: 'https://images.unsplash.com/photo-1506152983158-b4a74a01c721?w=500', desc: 'Alta resistencia.' },
             { id: 2, name: 'Tenis Running Hombre', cat: 'Tenis Hombre', price: 1199, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500', desc: 'Comodidad máxima.' },
@@ -171,7 +192,29 @@
         ];
 
         let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
-        const WHATSAPP_NUMBER = '15756548307';
+
+        function applyWhatsappNumber() {
+            const cleanNum = (WHATSAPP_NUMBER || DEFAULT_WHATSAPP).replace(/\D/g, '');
+            WHATSAPP_NUMBER = cleanNum || DEFAULT_WHATSAPP;
+            const waBtn = document.getElementById('floating-whatsapp-btn');
+            if (waBtn) {
+                waBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola Arencross-shopstore, tengo una duda sobre sus productos.')}`;
+            }
+            const waInput = document.getElementById('admin-wa-input');
+            if (waInput) waInput.value = WHATSAPP_NUMBER;
+        }
+
+        function saveWhatsappNumber() {
+            const val = document.getElementById('admin-wa-input').value.replace(/\D/g, '');
+            if (val.length < 10) {
+                alert("Ingresa un número válido con código de país (ej. 15756548307).");
+                return;
+            }
+            WHATSAPP_NUMBER = val;
+            localStorage.setItem('arencross_whatsapp', WHATSAPP_NUMBER);
+            applyWhatsappNumber();
+            alert("WhatsApp actualizado.");
+        }
 
         let clickCount = 0;
         document.getElementById('admin-trigger').addEventListener('click', () => {
@@ -192,7 +235,8 @@
                             <div class="p-2">
                                 <span class="text-[9px] font-bold text-brand-pink bg-pink-50 px-1.5 py-0.5 rounded">${p.cat}</span>
                                 <h3 class="font-bold text-xs mt-1 line-clamp-1">${p.name}</h3>
-                                <p class="text-sm font-black mt-1">$${p.price.toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
+                                <p class="text-[10px] text-gray-500 mt-0.5 line-clamp-1">${p.desc || ''}</p>
+                                <p class="text-sm font-black mt-1">$${Number(p.price).toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
                             </div>
                         </div>
                         <div class="p-2 pt-0"><button onclick="addToCart(${p.id})" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button></div>
@@ -209,8 +253,23 @@
 
         function searchProducts() {
             const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(products.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q)));
+            renderProducts(products.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q)));
         }
+
+        function updateImagePreview(src) {
+            const prev = document.getElementById('prod-img-preview');
+            if (src && src.trim()) {
+                prev.src = src.trim();
+                prev.classList.remove('hidden');
+            } else {
+                prev.src = '';
+                prev.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('prod-img').addEventListener('input', (e) => {
+            updateImagePreview(e.target.value);
+        });
 
         function convertImageFile(input) {
             if (input.files && input.files[0]) {
@@ -222,7 +281,9 @@
                         const scale = maxW / img.width;
                         canvas.width = maxW; canvas.height = img.height * scale;
                         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        document.getElementById('prod-img').value = canvas.toDataURL('image/jpeg', 0.6);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('prod-img').value = dataUrl;
+                        updateImagePreview(dataUrl);
                     };
                     img.src = e.target.result;
                 };
@@ -230,9 +291,15 @@
             }
         }
 
-        function openAdminPanel() { document.getElementById('admin-modal').classList.remove('hidden'); renderAdminList(); }
+        function openAdminPanel() { applyWhatsappNumber(); document.getElementById('admin-modal').classList.remove('hidden'); renderAdminList(); }
         function closeAdminPanel() { document.getElementById('admin-modal').classList.add('hidden'); resetForm(); }
-        function resetForm() { document.getElementById('product-form').reset(); document.getElementById('prod-id').value = ''; }
+        function resetForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('form-mode-label').innerText = 'Nuevo Producto';
+            document.getElementById('save-prod-btn').innerText = 'Guardar Producto';
+            updateImagePreview('');
+        }
 
         function renderAdminList() {
             const list = document.getElementById('admin-product-list');
@@ -256,11 +323,11 @@
         function saveProduct(e) {
             e.preventDefault();
             const id = document.getElementById('prod-id').value;
-            const name = document.getElementById('prod-name').value;
+            const name = document.getElementById('prod-name').value.trim();
             const cat = document.getElementById('prod-cat').value;
             const price = parseFloat(document.getElementById('prod-price').value);
-            const img = document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
-            const desc = document.getElementById('prod-desc').value;
+            const img = document.getElementById('prod-img').value.trim() || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+            const desc = document.getElementById('prod-desc').value.trim();
 
             if (id) {
                 const idx = products.findIndex(p => p.id == id);
@@ -272,7 +339,10 @@
 
             try {
                 localStorage.setItem('arencross_products', JSON.stringify(products));
-                renderProducts(); renderAdminList(); resetForm(); alert("¡Guardado exitoso!");
+                filterCategory(currentCategory);
+                renderAdminList();
+                resetForm();
+                alert("¡Guardado exitoso!");
             } catch (err) { alert("Imagen muy pesada, usa otra o un enlace."); }
         }
 
@@ -284,7 +354,10 @@
                 document.getElementById('prod-cat').value = p.cat;
                 document.getElementById('prod-price').value = p.price;
                 document.getElementById('prod-img').value = p.img;
-                document.getElementById('prod-desc').value = p.desc;
+                document.getElementById('prod-desc').value = p.desc || '';
+                document.getElementById('form-mode-label').innerText = `Editando #${p.id}`;
+                document.getElementById('save-prod-btn').innerText = 'Guardar Cambios';
+                updateImagePreview(p.img);
             }
         }
 
@@ -292,7 +365,21 @@
             if (confirm("¿Eliminar producto?")) {
                 products = products.filter(p => p.id !== id);
                 localStorage.setItem('arencross_products', JSON.stringify(products));
-                renderProducts(); renderAdminList();
+                filterCategory(currentCategory);
+                renderAdminList();
+            }
+        }
+
+        function copyCatalogJSON() {
+            const dataStr = JSON.stringify(products, null, 2);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(dataStr).then(() => {
+                    alert("Datos del catálogo copiados al portapapeles.");
+                }).catch(() => {
+                    prompt("Copia estos datos del catálogo:", dataStr);
+                });
+            } else {
+                prompt("Copia estos datos del catálogo:", dataStr);
             }
         }
 
@@ -303,7 +390,7 @@
                 <img src="${p.img}" class="w-full h-44 object-cover rounded-xl mb-2">
                 <span class="text-[10px] font-bold text-brand-pink bg-pink-50 px-2 py-0.5 rounded">${p.cat}</span>
                 <h2 class="text-base font-black mt-1">${p.name}</h2>
-                <p class="text-lg font-black mt-1">$${p.price.toLocaleString()} MXN</p>
+                <p class="text-lg font-black mt-1">$${Number(p.price).toLocaleString()} MXN</p>
                 <p class="text-xs text-gray-600 mt-1">${p.desc || ''}</p>
                 <div class="mt-3 space-y-1.5">
                     <button onclick="addToCart(${p.id}); closeProductModal(); toggleCart();" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
@@ -364,6 +451,7 @@
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        applyWhatsappNumber();
         renderProducts();
     </script>
 </body>
