@@ -62,17 +62,20 @@
             </span>
         </div>
 
-        <!-- BANNER PAQUETES DE CAMISAS SOLO EN "TODO" -->
-        <div id="todo-packages-banner" class="mb-4 bg-white rounded-2xl shadow-md border border-pink-200 overflow-hidden">
-            <div class="p-3 bg-gradient-to-r from-brand-dark via-zinc-900 to-brand-dark text-white flex flex-col sm:flex-row items-center gap-3">
-                <img src="https://i.ibb.co/placeholder-paquetes-camisas.jpg" id="packages-promo-img" alt="Paquetes de Camisas Calidad Premium" class="w-full sm:w-36 h-44 object-cover rounded-xl border border-pink-400/40 bg-zinc-800">
-                <div class="flex-1 text-center sm:text-left space-y-1.5">
-                    <span class="inline-block bg-brand-pink text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Exclusivo Venta por WhatsApp</span>
-                    <h3 class="text-sm font-black">Paquetes de Camisas · Algodón Peinado Bordado 3D</h3>
-                    <p class="text-[11px] text-gray-300">Venta exclusiva por WhatsApp: <strong>sin agregarse al carrito</strong> y <strong>sin calcular envío</strong> (envío nacional incluido según paquete).</p>
-                    <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20quiero%20informes%20de%20los%20Paquetes%20de%20Camisas." target="_blank"
-                       class="inline-flex items-center gap-1.5 bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">
-                        <i class="fa-brands fa-whatsapp text-sm"></i> Pedir Paquete por WhatsApp
+        <!-- SECCIÓN EXCLUSIVA DE PAQUETES DE CAMISAS EN "TODO" -->
+        <div id="todo-packages-box" class="mb-4 bg-white rounded-xl border border-pink-200 p-3 shadow-sm">
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <div id="paquetes-camisas-slot" class="w-full sm:w-32 h-40 bg-zinc-100 rounded-lg border border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer select-none">
+                    <span id="paquetes-camisas-placeholder" class="text-[10px] text-gray-400 font-semibold text-center px-2">Imagen Paquetes de Camisas</span>
+                    <img id="paquetes-camisas-img" class="hidden w-full h-full object-cover" alt="Paquetes de Camisas">
+                </div>
+                <div class="flex-1 text-center sm:text-left space-y-1">
+                    <span class="inline-block bg-pink-50 text-brand-pink text-[10px] font-bold px-2 py-0.5 rounded">Paquetes de Camisas · Venta por WhatsApp</span>
+                    <p class="text-xs font-extrabold text-brand-dark">Exclusivo de venta por WhatsApp</p>
+                    <p class="text-[11px] text-gray-600">Sin agregarse al carrito · Sin calcular envío.</p>
+                    <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20quiero%20informaci%C3%B3n%20de%20los%20paquetes%20de%20camisas." target="_blank"
+                       class="inline-flex items-center gap-1.5 bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
+                        <i class="fa-brands fa-whatsapp"></i> Pedir por WhatsApp
                     </a>
                 </div>
             </div>
@@ -82,6 +85,26 @@
             <div class="col-span-full text-center py-8 text-gray-400 text-xs">Cargando catálogo...</div>
         </div>
     </main>
+
+    <!-- MINI CUADRO EXCLUSIVO PARA EDITAR IMAGEN DEL PAQUETE EN FIRESTORE -->
+    <div id="package-img-modal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-2 overflow-y-auto">
+        <div class="bg-white rounded-xl w-full max-w-xs p-3 relative shadow-2xl my-auto text-xs space-y-2">
+            <div class="flex justify-between items-center pb-1.5 border-b">
+                <h3 class="font-black text-sm text-brand-dark"><i class="fa-solid fa-lock text-brand-pink"></i> Imagen Paquete</h3>
+                <button onclick="closePackageImgModal()" class="text-gray-500 font-bold text-base px-2">✕</button>
+            </div>
+            <div>
+                <label class="block font-bold text-gray-700 text-[11px]">Foto (Cámara, Galería o Link)</label>
+                <input type="file" id="pkg-file" accept="image/*" onchange="convertPackageImageFile(this)" class="w-full text-[11px] mb-1">
+                <input type="text" id="pkg-img-input" placeholder="Se llenará al subir foto o pega link" class="w-full border rounded px-2 py-1 text-[11px]">
+                <img id="pkg-img-preview" class="hidden w-16 h-16 object-cover rounded mt-1 border">
+            </div>
+            <div class="flex gap-1.5 pt-1">
+                <button type="button" id="btn-save-pkg-img" onclick="savePackageImage()" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs">Guardar en la Nube</button>
+                <button type="button" onclick="clearPackageImage()" class="bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold">Quitar</button>
+            </div>
+        </div>
+    </div>
 
     <!-- BOTÓN WHATSAPP FLOTANTE ELEVADO -->
     <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20tengo%20una%20duda." target="_blank"
@@ -101,7 +124,7 @@
     <div id="direct-pay-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 relative shadow-2xl text-xs">
             <button onclick="closeDirectPayModal()" class="absolute top-3 right-3 text-gray-500 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
-            <h3 class="text-sm font-black text-brand-dark mb-2"><i class="fa-solid fa-credit-card text-brand-pink"></i> Pago Directo en Tienda</h3>
+            <h3 class="text-sm font-black text-brand-dark mb-2">Pago Directo en Tienda</h3>
             <div id="direct-pay-content" class="space-y-2"></div>
         </div>
     </div>
@@ -197,7 +220,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCN8ziVdOWwQOEBUscocMJZ8nwrEKgq5_k",
@@ -215,11 +238,118 @@
         }
         const db = getFirestore(app);
         const productsCol = collection(db, "productos");
+        const packageDocRef = doc(db, "Configuracion", "Paquetes_camisas");
 
         let products = [];
+        let currentPackageImg = '';
         let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
         const WHATSAPP_NUMBER = '15756548307';
 
+        function applyPackageImageUI(src) {
+            currentPackageImg = src || '';
+            const imgEl = document.getElementById('paquetes-camisas-img');
+            const phEl = document.getElementById('paquetes-camisas-placeholder');
+            if (currentPackageImg) {
+                imgEl.src = currentPackageImg;
+                imgEl.classList.remove('hidden');
+                phEl.classList.add('hidden');
+            } else {
+                imgEl.removeAttribute('src');
+                imgEl.classList.add('hidden');
+                phEl.classList.remove('hidden');
+            }
+        }
+
+        // ESCUCHA EN TIEMPO REAL DE LA IMAGEN DEL PAQUETE EN FIRESTORE
+        onSnapshot(packageDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                applyPackageImageUI(docSnap.data().img || '');
+            } else {
+                applyPackageImageUI('');
+            }
+        }, (error) => {
+            console.error("Error sincronizando imagen de paquete en Firebase:", error);
+        });
+
+        let pkgClickCount = 0;
+        document.getElementById('paquetes-camisas-slot').addEventListener('click', () => {
+            pkgClickCount++;
+            if (pkgClickCount >= 3) {
+                pkgClickCount = 0;
+                let pin = prompt("PIN Administrador:");
+                if (pin === "2015") openPackageImgModal();
+            }
+            setTimeout(() => { pkgClickCount = 0; }, 1000);
+        });
+
+        window.openPackageImgModal = function() {
+            document.getElementById('pkg-file').value = '';
+            document.getElementById('pkg-img-input').value = currentPackageImg;
+            const prev = document.getElementById('pkg-img-preview');
+            if (currentPackageImg) {
+                prev.src = currentPackageImg;
+                prev.classList.remove('hidden');
+            } else {
+                prev.classList.add('hidden');
+            }
+            document.getElementById('package-img-modal').classList.remove('hidden');
+        };
+
+        window.closePackageImgModal = function() {
+            document.getElementById('package-img-modal').classList.add('hidden');
+        };
+
+        window.convertPackageImageFile = function(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const maxW = 500;
+                        const scale = img.width > maxW ? maxW / img.width : 1;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+                        document.getElementById('pkg-img-input').value = compressedDataUrl;
+                        const preview = document.getElementById('pkg-img-preview');
+                        preview.src = compressedDataUrl;
+                        preview.classList.remove('hidden');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+
+        window.savePackageImage = async function() {
+            const btn = document.getElementById('btn-save-pkg-img');
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
+            const val = document.getElementById('pkg-img-input').value.trim();
+            try {
+                await setDoc(packageDocRef, { img: val });
+                closePackageImgModal();
+            } catch (err) {
+                console.error(err);
+                alert("Error al guardar imagen en la nube. Revisa las reglas de Firestore.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar en la Nube";
+            }
+        };
+
+        window.clearPackageImage = async function() {
+            try {
+                await setDoc(packageDocRef, { img: '' });
+                closePackageImgModal();
+            } catch (err) {
+                alert("Error al quitar imagen: " + err.message);
+            }
+        };
+
+        // ESCUCHA EN TIEMPO REAL: Actualiza a todos los usuarios automáticamente
         onSnapshot(productsCol, (snapshot) => {
             products = snapshot.docs.map(docSnap => ({
                 id: docSnap.id,
@@ -238,15 +368,15 @@
             if (clickCount >= 3) {
                 clickCount = 0;
                 let pin = prompt("PIN Administrador:");
-                if (pin === "1234") openAdminPanel();
+                if (pin === "2015") openAdminPanel();
             }
             setTimeout(() => { clickCount = 0; }, 1000);
         });
 
         function applyCurrentFilter() {
-            const banner = document.getElementById('todo-packages-banner');
-            if (banner) {
-                banner.classList.toggle('hidden', currentCategory !== 'todos');
+            const pkgBox = document.getElementById('todo-packages-box');
+            if (pkgBox) {
+                pkgBox.classList.toggle('hidden', currentCategory !== 'todos');
             }
             const q = document.getElementById('search-input').value.toLowerCase();
             let filtered = currentCategory === 'todos' ? products : products.filter(p => p.cat === currentCategory);
@@ -295,7 +425,7 @@
                     </div>
                 </div>
                 <p class="text-[11px] text-gray-600">Pago directo en tienda sin redirigir a WhatsApp. CLABE SPEI: <strong class="font-mono select-all">721180100034025723</strong></p>
-                <button onclick="closeDirectPayModal(); alert('Solicitud de pago directo registrada en tienda para ${p.name.replace(/'/g, '')}.');" class="w-full bg-brand-dark text-white font-bold py-2 rounded-lg text-xs">Confirmar Pago en Tienda</button>
+                <button onclick="closeDirectPayModal()" class="w-full bg-brand-dark text-white font-bold py-2 rounded-lg text-xs">Listo</button>
             `;
             document.getElementById('direct-pay-modal').classList.remove('hidden');
         };
@@ -344,184 +474,3 @@
         };
 
         window.closeAdminPanel = function() {
-            document.getElementById('admin-modal').classList.add('hidden');
-            resetForm();
-        };
-
-        window.resetForm = function() {
-            document.getElementById('product-form').reset();
-            document.getElementById('prod-id').value = '';
-            document.getElementById('img-preview').classList.add('hidden');
-            document.getElementById('btn-save-prod').innerText = 'Guardar en la Nube';
-        };
-
-        window.renderAdminList = function() {
-            const list = document.getElementById('admin-product-list');
-            list.innerHTML = '';
-            products.forEach(p => {
-                list.innerHTML += `
-                    <div class="flex items-center justify-between bg-gray-50 p-1.5 rounded border">
-                        <div class="flex items-center gap-1.5 overflow-hidden">
-                            <img src="${p.img}" class="w-7 h-7 object-cover rounded">
-                            <div class="truncate"><p class="font-bold text-[11px] truncate">${p.name}</p><p class="text-[9px] text-gray-500">$${p.price}</p></div>
-                        </div>
-                        <div class="flex gap-1">
-                            <button type="button" onclick="editProduct('${p.id}')" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">Editar</button>
-                            <button type="button" onclick="deleteProduct('${p.id}')" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">X</button>
-                        </div>
-                    </div>
-                `;
-            });
-        };
-
-        window.saveProduct = async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-save-prod');
-            btn.disabled = true;
-            btn.innerText = "Guardando...";
-
-            const id = document.getElementById('prod-id').value;
-            const productData = {
-                name: document.getElementById('prod-name').value,
-                cat: document.getElementById('prod-cat').value,
-                price: parseFloat(document.getElementById('prod-price').value),
-                img: document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
-                desc: document.getElementById('prod-desc').value
-            };
-
-            try {
-                if (id) {
-                    await updateDoc(doc(db, "productos", id), productData);
-                    alert("¡Producto modificado para todos!");
-                } else {
-                    await addDoc(productsCol, productData);
-                    alert("¡Producto publicado para todos!");
-                }
-                resetForm();
-            } catch (err) {
-                console.error(err);
-                alert("Error al guardar. Intenta con una foto más ligera o revisa las reglas de Firestore.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Guardar en la Nube";
-            }
-        };
-
-        window.editProduct = function(id) {
-            const p = products.find(prod => prod.id === id);
-            if (p) {
-                document.getElementById('prod-id').value = p.id;
-                document.getElementById('prod-name').value = p.name;
-                document.getElementById('prod-cat').value = p.cat;
-                document.getElementById('prod-price').value = p.price;
-                document.getElementById('prod-img').value = p.img;
-                document.getElementById('prod-desc').value = p.desc || '';
-                const preview = document.getElementById('img-preview');
-                preview.src = p.img;
-                preview.classList.remove('hidden');
-                document.getElementById('btn-save-prod').innerText = 'Actualizar Producto';
-            }
-        };
-
-        window.deleteProduct = async function(id) {
-            if (confirm("¿Eliminar este producto de la tienda para todos?")) {
-                try {
-                    await deleteDoc(doc(db, "productos", id));
-                } catch (err) {
-                    alert("Error al eliminar: " + err.message);
-                }
-            }
-        };
-
-        window.openProductModal = function(id) {
-            const p = products.find(prod => prod.id === id);
-            if (!p) return;
-            document.getElementById('modal-content').innerHTML = `
-                <img src="${p.img}" class="w-full h-44 object-cover rounded-xl mb-2">
-                <span class="text-[10px] font-bold text-brand-pink bg-pink-50 px-2 py-0.5 rounded">${p.cat}</span>
-                <h2 class="text-base font-black mt-1">${p.name}</h2>
-                <p class="text-lg font-black mt-1">$${Number(p.price).toLocaleString()} MXN</p>
-                <p class="text-xs text-gray-600 mt-1">${p.desc || ''}</p>
-                <div class="mt-3 space-y-1.5">
-                    <button onclick="addToCart('${p.id}'); closeProductModal(); toggleCart();" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
-                    <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Hola,%20me%20interesa:%20${encodeURIComponent(p.name)}%20($${p.price}MXN)" target="_blank" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-1.5">
-                        <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
-                    </a>
-                </div>
-            `;
-            document.getElementById('product-modal').classList.remove('hidden');
-        };
-
-        window.closeProductModal = function() {
-            document.getElementById('product-modal').classList.add('hidden');
-        };
-
-        window.toggleCart = function() {
-            const m = document.getElementById('cart-modal');
-            m.classList.toggle('hidden');
-            if (!m.classList.contains('hidden')) renderCartItems();
-        };
-
-        window.addToCart = function(id) {
-            const p = products.find(prod => prod.id === id);
-            if (!p) return;
-            const e = cart.find(item => item.id === id);
-            if (e) e.qty++;
-            else cart.push({ ...p, qty: 1 });
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-        };
-
-        window.renderCartItems = function() {
-            const c = document.getElementById('cart-items');
-            c.innerHTML = '';
-            if (cart.length === 0) {
-                c.innerHTML = `<div class="text-center py-3 text-gray-400">Carrito vacío</div>`;
-                document.getElementById('cart-subtotal').innerText = '$0 MXN';
-                document.getElementById('cart-total').innerText = `$${shippingCost} MXN`;
-                return;
-            }
-            let sub = 0;
-            cart.forEach(i => {
-                sub += i.price * i.qty;
-                c.innerHTML += `<div class="py-1.5 flex items-center justify-between"><div class="flex items-center gap-2"><img src="${i.img}" class="w-8 h-8 object-cover rounded"><div><p class="font-bold line-clamp-1">${i.name}</p><p class="text-[10px] text-gray-500">$${i.price} x ${i.qty}</p></div></div><button onclick="removeFromCart('${i.id}')" class="text-red-500 font-bold px-1">X</button></div>`;
-            });
-            document.getElementById('cart-subtotal').innerText = `$${sub.toLocaleString()} MXN`;
-            document.getElementById('cart-shipping-cost').innerText = `$${shippingCost.toLocaleString()} MXN`;
-            document.getElementById('cart-total').innerText = `$${(sub + shippingCost).toLocaleString()} MXN`;
-        };
-
-        window.removeFromCart = function(id) {
-            cart = cart.filter(i => i.id !== id);
-            renderCartItems();
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-        };
-
-        window.calculateShipping = function() {
-            const cp = document.getElementById('postal-code').value, res = document.getElementById('shipping-result');
-            if (cp.length !== 5) {
-                res.innerHTML = `<span class="text-red-500 font-bold">CP inválido.</span>`;
-                return;
-            }
-            shippingCost = cp.startsWith('32') ? 90 : 180;
-            res.innerHTML = `<span class="text-emerald-600 font-bold">✓ SkydropX: $${shippingCost} MXN</span>`;
-            renderCartItems();
-        };
-
-        window.selectPayment = function(m) {
-            selectedPaymentMethod = m;
-            ['tarjeta', 'spei', 'oxxo'].forEach(x => {
-                document.getElementById(`pay-${x}`).className = x === m ? "p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold" : "p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold";
-            });
-            document.getElementById('spei-info-box').classList.toggle('hidden', m !== 'spei');
-        };
-
-        window.checkoutOrder = function() {
-            if (cart.length === 0) return alert("Carrito vacío.");
-            let sub = cart.reduce((s, i) => s + (i.price * i.qty), 0), tot = sub + shippingCost;
-            let items = cart.map(i => `• ${i.qty}x ${i.name} ($${i.price * i.qty})`).join('\n');
-            let msg = `¡Hola! Pedido en *Arencross-shopstore*:\n\n${items}\n\nTotal: *$${tot} MXN*\nPago: *${selectedPaymentMethod.toUpperCase()}*` + (selectedPaymentMethod === 'spei' ? `\nCLABE: 721180100034025723` : '');
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-        };
-    </script>
-</body>
-</html>
