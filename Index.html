@@ -57,13 +57,17 @@
     <main class="max-w-7xl mx-auto px-3 py-4 flex-1 w-full">
         <div class="flex justify-between items-center mb-3">
             <h2 id="current-category-title" class="text-base font-extrabold text-brand-dark">Catálogo Exclusivo</h2>
-            <span class="text-[10px] text-gray-500 font-semibold bg-white px-2 py-0.5 rounded-full shadow-sm">México</span>
+            <span id="sync-status" class="text-[10px] text-emerald-600 font-semibold bg-white px-2 py-0.5 rounded-full shadow-sm">
+                <i class="fa-solid fa-circle text-[7px] animate-pulse"></i> En vivo
+            </span>
         </div>
-        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="col-span-full text-center py-8 text-gray-400 text-xs">Cargando catálogo...</div>
+        </div>
     </main>
 
     <!-- BOTÓN WHATSAPP FLOTANTE ELEVADO -->
-    <a href="https://wa.me/52165656548307?text=Hola%20Arencross-shopstore,%20tengo%20una%20duda." target="_blank"
+    <a href="https://wa.me/15756548307?text=Hola%20Arencross-shopstore,%20tengo%20una%20duda." target="_blank"
        class="fixed bottom-20 right-4 z-40 bg-emerald-500 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-2xl">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
@@ -105,22 +109,23 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold text-gray-700 text-[11px]">Foto (Galería o Link)</label>
+                    <label class="block font-bold text-gray-700 text-[11px]">Foto (Cámara, Galería o Link)</label>
                     <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="w-full text-[11px] mb-1">
-                    <input type="text" id="prod-img" placeholder="O pega link" class="w-full border rounded px-2 py-1 text-[11px]">
+                    <input type="text" id="prod-img" placeholder="Se llenará al subir foto o pega link" class="w-full border rounded px-2 py-1 text-[11px]">
+                    <img id="img-preview" class="hidden w-16 h-16 object-cover rounded mt-1 border">
                 </div>
                 <div>
                     <label class="block font-bold text-gray-700 text-[11px]">Descripción</label>
                     <input type="text" id="prod-desc" class="w-full border rounded px-2 py-1 text-xs">
                 </div>
                 <div class="flex gap-1.5 pt-1">
-                    <button type="submit" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs">Guardar</button>
+                    <button type="submit" id="btn-save-prod" class="flex-1 bg-brand-pink text-white font-bold py-1.5 rounded text-xs">Guardar en la Nube</button>
                     <button type="button" onclick="resetForm()" class="bg-gray-200 text-gray-700 px-2.5 py-1.5 rounded text-xs font-bold">Limpiar</button>
                 </div>
             </form>
             <div class="mt-3 pt-2 border-t">
-                <h4 class="font-bold text-gray-800 text-[11px] mb-1">Tus Productos:</h4>
-                <div id="admin-product-list" class="space-y-1 max-h-28 overflow-y-auto"></div>
+                <h4 class="font-bold text-gray-800 text-[11px] mb-1">Tus Productos (En vivo):</h4>
+                <div id="admin-product-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -162,79 +167,142 @@
         </div>
     </div>
 
-    <script>
-        let products = JSON.parse(localStorage.getItem('arencross_products')) || [
-            { id: 1, name: 'Malla Deportiva Pro', cat: 'Mallas', price: 450, img: 'https://images.unsplash.com/photo-1506152983158-b4a74a01c721?w=500', desc: 'Alta resistencia.' },
-            { id: 2, name: 'Tenis Running Hombre', cat: 'Tenis Hombre', price: 1199, img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500', desc: 'Comodidad máxima.' },
-            { id: 3, name: 'Tenis Plataforma Mujer', cat: 'Tenis Mujer', price: 980, img: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500', desc: 'Diseño ligero.' },
-            { id: 4, name: 'Playera Algodón Hombre', cat: 'Playeras Hombre', price: 320, img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=500', desc: '100% transpirable.' }
-        ];
+    <!-- FIREBASE SDK + LÓGICA EN TIEMPO REAL -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-analytics.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyCN8ziVdOWwQOEBUscocMJZ8nwrEKgq5_k",
+            authDomain: "arencross-shopstore.firebaseapp.com",
+            projectId: "arencross-shopstore",
+            storageBucket: "arencross-shopstore.firebasestorage.app",
+            messagingSenderId: "392899601831",
+            appId: "1:392899601831:web:e16a439b99b15756074282",
+            measurementId: "G-NTKKRGGL5G"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        if (location.protocol !== "file:") {
+            try { getAnalytics(app); } catch (e) {}
+        }
+        const db = getFirestore(app);
+        const productsCol = collection(db, "productos");
+
+        let products = [];
         let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
-        const WHATSAPP_NUMBER = '52165656548307';
+        const WHATSAPP_NUMBER = '15756548307';
+
+        // ESCUCHA EN TIEMPO REAL: Actualiza a todos los usuarios automáticamente
+        onSnapshot(productsCol, (snapshot) => {
+            products = snapshot.docs.map(docSnap => ({
+                id: docSnap.id,
+                ...docSnap.data()
+            }));
+            applyCurrentFilter();
+            renderAdminList();
+        }, (error) => {
+            console.error("Error conectando a Firebase:", error);
+            document.getElementById('sync-status').innerHTML = `<span class="text-red-500">Revisa reglas de Firestore</span>`;
+        });
 
         let clickCount = 0;
         document.getElementById('admin-trigger').addEventListener('click', () => {
             clickCount++;
-            if (clickCount >= 3) { clickCount = 0; let pin = prompt("PIN Administrador:"); if (pin === "1234") openAdminPanel(); }
+            if (clickCount >= 3) {
+                clickCount = 0;
+                let pin = prompt("PIN Administrador:");
+                if (pin === "1234") openAdminPanel();
+            }
             setTimeout(() => { clickCount = 0; }, 1000);
         });
 
-        function renderProducts(list = products) {
+        function applyCurrentFilter() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            let filtered = currentCategory === 'todos' ? products : products.filter(p => p.cat === currentCategory);
+            if (q) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q));
+            }
+            renderProducts(filtered);
+        }
+
+        window.renderProducts = function(list = products) {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
-            if (list.length === 0) { grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs">Sin productos.</div>`; return; }
+            if (list.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400 text-xs">No hay productos disponibles todavía.</div>`;
+                return;
+            }
             list.forEach(p => {
                 grid.innerHTML += `
                     <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col justify-between">
-                        <div onclick="openProductModal(${p.id})" class="cursor-pointer">
+                        <div onclick="openProductModal('${p.id}')" class="cursor-pointer">
                             <img src="${p.img}" class="w-full h-32 object-cover bg-gray-100">
                             <div class="p-2">
                                 <span class="text-[9px] font-bold text-brand-pink bg-pink-50 px-1.5 py-0.5 rounded">${p.cat}</span>
                                 <h3 class="font-bold text-xs mt-1 line-clamp-1">${p.name}</h3>
-                                <p class="text-sm font-black mt-1">$${p.price.toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
+                                <p class="text-sm font-black mt-1">$${Number(p.price).toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
                             </div>
                         </div>
-                        <div class="p-2 pt-0"><button onclick="addToCart(${p.id})" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button></div>
+                        <div class="p-2 pt-0"><button onclick="addToCart('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button></div>
                     </div>
                 `;
             });
-        }
+        };
 
-        function filterCategory(cat) {
+        window.filterCategory = function(cat) {
             currentCategory = cat;
             document.getElementById('current-category-title').innerText = cat === 'todos' ? 'Catálogo Exclusivo' : cat;
-            renderProducts(cat === 'todos' ? products : products.filter(p => p.cat === cat));
-        }
+            applyCurrentFilter();
+        };
 
-        function searchProducts() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(products.filter(p => p.name.toLowerCase().includes(q) || p.cat.toLowerCase().includes(q)));
-        }
+        window.searchProducts = function() {
+            applyCurrentFilter();
+        };
 
-        function convertImageFile(input) {
+        window.convertImageFile = function(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = new Image();
                     img.onload = function() {
-                        const canvas = document.createElement('canvas'), maxW = 400;
-                        const scale = maxW / img.width;
-                        canvas.width = maxW; canvas.height = img.height * scale;
+                        const canvas = document.createElement('canvas');
+                        const maxW = 500;
+                        const scale = img.width > maxW ? maxW / img.width : 1;
+                        canvas.width = img.width * scale;
+                        canvas.height = img.height * scale;
                         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        document.getElementById('prod-img').value = canvas.toDataURL('image/jpeg', 0.6);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+                        document.getElementById('prod-img').value = compressedDataUrl;
+                        const preview = document.getElementById('img-preview');
+                        preview.src = compressedDataUrl;
+                        preview.classList.remove('hidden');
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(input.files[0]);
             }
-        }
+        };
 
-        function openAdminPanel() { document.getElementById('admin-modal').classList.remove('hidden'); renderAdminList(); }
-        function closeAdminPanel() { document.getElementById('admin-modal').classList.add('hidden'); resetForm(); }
-        function resetForm() { document.getElementById('product-form').reset(); document.getElementById('prod-id').value = ''; }
+        window.openAdminPanel = function() {
+            document.getElementById('admin-modal').classList.remove('hidden');
+            renderAdminList();
+        };
 
-        function renderAdminList() {
+        window.closeAdminPanel = function() {
+            document.getElementById('admin-modal').classList.add('hidden');
+            resetForm();
+        };
+
+        window.resetForm = function() {
+            document.getElementById('product-form').reset();
+            document.getElementById('prod-id').value = '';
+            document.getElementById('img-preview').classList.add('hidden');
+            document.getElementById('btn-save-prod').innerText = 'Guardar en la Nube';
+        };
+
+        window.renderAdminList = function() {
             const list = document.getElementById('admin-product-list');
             list.innerHTML = '';
             products.forEach(p => {
@@ -245,38 +313,48 @@
                             <div class="truncate"><p class="font-bold text-[11px] truncate">${p.name}</p><p class="text-[9px] text-gray-500">$${p.price}</p></div>
                         </div>
                         <div class="flex gap-1">
-                            <button type="button" onclick="editProduct(${p.id})" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">Editar</button>
-                            <button type="button" onclick="deleteProduct(${p.id})" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">X</button>
+                            <button type="button" onclick="editProduct('${p.id}')" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">Editar</button>
+                            <button type="button" onclick="deleteProduct('${p.id}')" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">X</button>
                         </div>
                     </div>
                 `;
             });
-        }
+        };
 
-        function saveProduct(e) {
+        window.saveProduct = async function(e) {
             e.preventDefault();
-            const id = document.getElementById('prod-id').value;
-            const name = document.getElementById('prod-name').value;
-            const cat = document.getElementById('prod-cat').value;
-            const price = parseFloat(document.getElementById('prod-price').value);
-            const img = document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
-            const desc = document.getElementById('prod-desc').value;
+            const btn = document.getElementById('btn-save-prod');
+            btn.disabled = true;
+            btn.innerText = "Guardando...";
 
-            if (id) {
-                const idx = products.findIndex(p => p.id == id);
-                if (idx !== -1) products[idx] = { id: Number(id), name, cat, price, img, desc };
-            } else {
-                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-                products.push({ id: newId, name, cat, price, img, desc });
-            }
+            const id = document.getElementById('prod-id').value;
+            const productData = {
+                name: document.getElementById('prod-name').value,
+                cat: document.getElementById('prod-cat').value,
+                price: parseFloat(document.getElementById('prod-price').value),
+                img: document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
+                desc: document.getElementById('prod-desc').value
+            };
 
             try {
-                localStorage.setItem('arencross_products', JSON.stringify(products));
-                renderProducts(); renderAdminList(); resetForm(); alert("¡Guardado exitoso!");
-            } catch (err) { alert("Imagen muy pesada, usa otra o un enlace."); }
-        }
+                if (id) {
+                    await updateDoc(doc(db, "productos", id), productData);
+                    alert("¡Producto modificado para todos!");
+                } else {
+                    await addDoc(productsCol, productData);
+                    alert("¡Producto publicado para todos!");
+                }
+                resetForm();
+            } catch (err) {
+                console.error(err);
+                alert("Error al guardar. Intenta con una foto más ligera o revisa las reglas de Firestore.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar en la Nube";
+            }
+        };
 
-        function editProduct(id) {
+        window.editProduct = function(id) {
             const p = products.find(prod => prod.id === id);
             if (p) {
                 document.getElementById('prod-id').value = p.id;
@@ -284,87 +362,113 @@
                 document.getElementById('prod-cat').value = p.cat;
                 document.getElementById('prod-price').value = p.price;
                 document.getElementById('prod-img').value = p.img;
-                document.getElementById('prod-desc').value = p.desc;
+                document.getElementById('prod-desc').value = p.desc || '';
+                const preview = document.getElementById('img-preview');
+                preview.src = p.img;
+                preview.classList.remove('hidden');
+                document.getElementById('btn-save-prod').innerText = 'Actualizar Producto';
             }
-        }
+        };
 
-        function deleteProduct(id) {
-            if (confirm("¿Eliminar producto?")) {
-                products = products.filter(p => p.id !== id);
-                localStorage.setItem('arencross_products', JSON.stringify(products));
-                renderProducts(); renderAdminList();
+        window.deleteProduct = async function(id) {
+            if (confirm("¿Eliminar este producto de la tienda para todos?")) {
+                try {
+                    await deleteDoc(doc(db, "productos", id));
+                } catch (err) {
+                    alert("Error al eliminar: " + err.message);
+                }
             }
-        }
+        };
 
-        function openProductModal(id) {
+        window.openProductModal = function(id) {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
             document.getElementById('modal-content').innerHTML = `
                 <img src="${p.img}" class="w-full h-44 object-cover rounded-xl mb-2">
                 <span class="text-[10px] font-bold text-brand-pink bg-pink-50 px-2 py-0.5 rounded">${p.cat}</span>
                 <h2 class="text-base font-black mt-1">${p.name}</h2>
-                <p class="text-lg font-black mt-1">$${p.price.toLocaleString()} MXN</p>
+                <p class="text-lg font-black mt-1">$${Number(p.price).toLocaleString()} MXN</p>
                 <p class="text-xs text-gray-600 mt-1">${p.desc || ''}</p>
                 <div class="mt-3 space-y-1.5">
-                    <button onclick="addToCart(${p.id}); closeProductModal(); toggleCart();" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
+                    <button onclick="addToCart('${p.id}'); closeProductModal(); toggleCart();" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
                     <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Hola,%20me%20interesa:%20${encodeURIComponent(p.name)}%20($${p.price}MXN)" target="_blank" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-1.5">
                         <i class="fa-brands fa-whatsapp"></i> Preguntar por WhatsApp
                     </a>
                 </div>
             `;
             document.getElementById('product-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeProductModal() { document.getElementById('product-modal').classList.add('hidden'); }
-        function toggleCart() { const m = document.getElementById('cart-modal'); m.classList.toggle('hidden'); if (!m.classList.contains('hidden')) renderCartItems(); }
+        window.closeProductModal = function() {
+            document.getElementById('product-modal').classList.add('hidden');
+        };
 
-        function addToCart(id) {
+        window.toggleCart = function() {
+            const m = document.getElementById('cart-modal');
+            m.classList.toggle('hidden');
+            if (!m.classList.contains('hidden')) renderCartItems();
+        };
+
+        window.addToCart = function(id) {
             const p = products.find(prod => prod.id === id);
+            if (!p) return;
             const e = cart.find(item => item.id === id);
-            if (e) e.qty++; else cart.push({ ...p, qty: 1 });
+            if (e) e.qty++;
+            else cart.push({ ...p, qty: 1 });
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-        }
+        };
 
-        function renderCartItems() {
-            const c = document.getElementById('cart-items'); c.innerHTML = '';
-            if (cart.length === 0) { c.innerHTML = `<div class="text-center py-3 text-gray-400">Carrito vacío</div>`; document.getElementById('cart-subtotal').innerText = '$0 MXN'; document.getElementById('cart-total').innerText = `$${shippingCost} MXN`; return; }
+        window.renderCartItems = function() {
+            const c = document.getElementById('cart-items');
+            c.innerHTML = '';
+            if (cart.length === 0) {
+                c.innerHTML = `<div class="text-center py-3 text-gray-400">Carrito vacío</div>`;
+                document.getElementById('cart-subtotal').innerText = '$0 MXN';
+                document.getElementById('cart-total').innerText = `$${shippingCost} MXN`;
+                return;
+            }
             let sub = 0;
             cart.forEach(i => {
                 sub += i.price * i.qty;
-                c.innerHTML += `<div class="py-1.5 flex items-center justify-between"><div class="flex items-center gap-2"><img src="${i.img}" class="w-8 h-8 object-cover rounded"><div><p class="font-bold line-clamp-1">${i.name}</p><p class="text-[10px] text-gray-500">$${i.price} x ${i.qty}</p></div></div><button onclick="removeFromCart(${i.id})" class="text-red-500 font-bold px-1">X</button></div>`;
+                c.innerHTML += `<div class="py-1.5 flex items-center justify-between"><div class="flex items-center gap-2"><img src="${i.img}" class="w-8 h-8 object-cover rounded"><div><p class="font-bold line-clamp-1">${i.name}</p><p class="text-[10px] text-gray-500">$${i.price} x ${i.qty}</p></div></div><button onclick="removeFromCart('${i.id}')" class="text-red-500 font-bold px-1">X</button></div>`;
             });
             document.getElementById('cart-subtotal').innerText = `$${sub.toLocaleString()} MXN`;
             document.getElementById('cart-shipping-cost').innerText = `$${shippingCost.toLocaleString()} MXN`;
             document.getElementById('cart-total').innerText = `$${(sub + shippingCost).toLocaleString()} MXN`;
-        }
+        };
 
-        function removeFromCart(id) { cart = cart.filter(i => i.id !== id); renderCartItems(); document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0); }
+        window.removeFromCart = function(id) {
+            cart = cart.filter(i => i.id !== id);
+            renderCartItems();
+            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+        };
 
-        function calculateShipping() {
+        window.calculateShipping = function() {
             const cp = document.getElementById('postal-code').value, res = document.getElementById('shipping-result');
-            if (cp.length !== 5) { res.innerHTML = `<span class="text-red-500 font-bold">CP inválido.</span>`; return; }
+            if (cp.length !== 5) {
+                res.innerHTML = `<span class="text-red-500 font-bold">CP inválido.</span>`;
+                return;
+            }
             shippingCost = cp.startsWith('32') ? 90 : 180;
             res.innerHTML = `<span class="text-emerald-600 font-bold">✓ SkydropX: $${shippingCost} MXN</span>`;
             renderCartItems();
-        }
+        };
 
-        function selectPayment(m) {
+        window.selectPayment = function(m) {
             selectedPaymentMethod = m;
             ['tarjeta', 'spei', 'oxxo'].forEach(x => {
                 document.getElementById(`pay-${x}`).className = x === m ? "p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold" : "p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold";
             });
             document.getElementById('spei-info-box').classList.toggle('hidden', m !== 'spei');
-        }
+        };
 
-        function checkoutOrder() {
+        window.checkoutOrder = function() {
             if (cart.length === 0) return alert("Carrito vacío.");
             let sub = cart.reduce((s, i) => s + (i.price * i.qty), 0), tot = sub + shippingCost;
             let items = cart.map(i => `• ${i.qty}x ${i.name} ($${i.price * i.qty})`).join('\n');
             let msg = `¡Hola! Pedido en *Arencross-shopstore*:\n\n${items}\n\nTotal: *$${tot} MXN*\nPago: *${selectedPaymentMethod.toUpperCase()}*` + (selectedPaymentMethod === 'spei' ? `\nCLABE: 721180100034025723` : '');
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-        }
-
-        renderProducts();
+        };
     </script>
 </body>
 </html>
