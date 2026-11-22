@@ -108,12 +108,24 @@
         <i class="fa-brands fa-whatsapp"></i>
     </a>
 
-    <!-- MODAL PRODUCTO INDIVIDUAL -->
-    <div id="product-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 relative shadow-2xl">
-            <button onclick="closeProductModal()" class="absolute top-3 right-3 text-gray-500 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
+    <!-- MODAL PRODUCTO INDIVIDUAL (GALERÍA 3 FOTOS + ZOOM COMPLETO + TALLAS/MEDIDAS + AGOTADO) -->
+    <div id="product-modal" class="fixed inset-0 bg-black/75 z-50 hidden flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 relative shadow-2xl my-auto">
+            <button onclick="closeProductModal()" class="absolute top-3 right-3 z-10 text-gray-600 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
             <div id="modal-content"></div>
         </div>
+    </div>
+
+    <!-- VISOR DE IMAGEN COMPLETA (LIGHTBOX PANTALLA COMPLETA SIN RECORTES) -->
+    <div id="fullscreen-image-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col items-center justify-between p-4">
+        <div class="w-full flex items-center justify-between text-white text-xs">
+            <span id="fullscreen-img-counter" class="bg-white/10 px-2.5 py-1 rounded-full font-bold">1 / 1</span>
+            <button type="button" onclick="closeFullscreenImage()" class="bg-white/20 hover:bg-white/30 text-white w-9 h-9 rounded-full font-bold text-base">✕</button>
+        </div>
+        <div class="flex-1 w-full flex items-center justify-center overflow-auto my-2">
+            <img id="fullscreen-img-element" src="" alt="Vista completa" class="max-w-full max-h-[80vh] object-contain rounded-lg select-none">
+        </div>
+        <div id="fullscreen-thumbs" class="flex items-center justify-center gap-2 pb-1"></div>
     </div>
 
     <!-- MINI-EDITOR EXCLUSIVO DE PAQUETES (ACTIVADO CON 3 TOQUES + PIN EN LA IMAGEN DE 'TODO') -->
@@ -156,10 +168,10 @@
         </div>
     </div>
 
-    <!-- PANEL ADMIN GENERAL COMPACTO -->
+    <!-- PANEL ADMIN GENERAL COMPACTO (CON 3 FOTOS, TALLAS/MEDIDAS Y CONTROL DE AGOTADO) -->
     <div id="admin-modal" class="fixed inset-0 bg-black/85 z-50 hidden flex items-center justify-center p-2 overflow-y-auto">
-        <div class="bg-white rounded-xl w-full max-w-xs p-3 relative shadow-2xl my-auto text-xs">
-            <div class="flex justify-between items-center mb-2 pb-1.5 border-b">
+        <div class="bg-white rounded-xl w-full max-w-xs p-3 relative shadow-2xl my-auto text-xs max-h-[92vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-2 pb-1.5 border-b sticky top-0 bg-white z-10">
                 <h3 class="font-black text-sm text-brand-dark"><i class="fa-solid fa-lock text-brand-pink"></i> Admin Arencross</h3>
                 <button onclick="closeAdminPanel()" class="text-gray-500 font-bold text-base px-2">✕</button>
             </div>
@@ -184,12 +196,55 @@
                         <input type="number" id="prod-price" required class="w-full border rounded px-2 py-1 text-xs">
                     </div>
                 </div>
-                <div>
-                    <label class="block font-bold text-gray-700 text-[11px]">Foto (Cámara, Galería o Link)</label>
-                    <input type="file" id="prod-file" accept="image/*" onchange="convertImageFile(this)" class="w-full text-[11px] mb-1">
-                    <input type="text" id="prod-img" placeholder="Se llenará al subir foto o pega link" class="w-full border rounded px-2 py-1 text-[11px]">
-                    <img id="img-preview" class="hidden w-16 h-16 object-cover rounded mt-1 border">
+
+                <!-- 3 IMÁGENES POR PRODUCTO -->
+                <div class="bg-gray-50 p-2 rounded-lg border space-y-1.5">
+                    <p class="font-bold text-gray-800 text-[11px]"><i class="fa-solid fa-images text-brand-pink"></i> Galería (hasta 3 fotos):</p>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-600">Foto 1 (Principal)</label>
+                        <input type="file" id="prod-file-1" accept="image/*" onchange="convertMultiImageFile(this, 1)" class="w-full text-[10px] mb-0.5">
+                        <input type="text" id="prod-img-1" placeholder="URL o foto subida 1" class="w-full border rounded px-2 py-1 text-[10px] bg-white">
+                        <img id="img-preview-1" class="hidden w-14 h-14 object-contain bg-white rounded mt-1 border">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-600">Foto 2 (Opcional)</label>
+                        <input type="file" id="prod-file-2" accept="image/*" onchange="convertMultiImageFile(this, 2)" class="w-full text-[10px] mb-0.5">
+                        <input type="text" id="prod-img-2" placeholder="URL o foto subida 2" class="w-full border rounded px-2 py-1 text-[10px] bg-white">
+                        <img id="img-preview-2" class="hidden w-14 h-14 object-contain bg-white rounded mt-1 border">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-gray-600">Foto 3 (Opcional)</label>
+                        <input type="file" id="prod-file-3" accept="image/*" onchange="convertMultiImageFile(this, 3)" class="w-full text-[10px] mb-0.5">
+                        <input type="text" id="prod-img-3" placeholder="URL o foto subida 3" class="w-full border rounded px-2 py-1 text-[10px] bg-white">
+                        <img id="img-preview-3" class="hidden w-14 h-14 object-contain bg-white rounded mt-1 border">
+                    </div>
                 </div>
+
+                <!-- TALLAS / MEDIDAS DISPONIBLES Y TALLAS AGOTADAS -->
+                <div class="bg-pink-50/60 p-2 rounded-lg border border-pink-100 space-y-1.5">
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[11px]">Tallas / Medidas (separadas por coma)</label>
+                        <input type="text" id="prod-sizes" placeholder="Ej: CH, M, G, XG  ó  25, 26, 27" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                        <div class="flex gap-1 mt-1">
+                            <button type="button" onclick="document.getElementById('prod-sizes').value='CH, M, G, XG'" class="text-[9px] bg-white border px-1.5 py-0.5 rounded font-semibold">Ropa (CH-XG)</button>
+                            <button type="button" onclick="document.getElementById('prod-sizes').value='25, 26, 27, 28'" class="text-[9px] bg-white border px-1.5 py-0.5 rounded font-semibold">Tenis (25-28)</button>
+                            <button type="button" onclick="document.getElementById('prod-sizes').value='Unitalla'" class="text-[9px] bg-white border px-1.5 py-0.5 rounded font-semibold">Unitalla</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[11px]">Guía de Medidas (Opcional)</label>
+                        <input type="text" id="prod-measurements" placeholder="Ej: CH: 48cm ancho · M: 51cm · G: 54cm" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-gray-700 text-[11px]">Tallas Agotadas (separadas por coma, opcional)</label>
+                        <input type="text" id="prod-soldout-sizes" placeholder="Ej: M, XG (dejar vacío si hay de todas)" class="w-full border rounded px-2 py-1 text-xs bg-white">
+                    </div>
+                    <label class="flex items-center gap-2 pt-1 cursor-pointer select-none">
+                        <input type="checkbox" id="prod-soldout" class="w-4 h-4 accent-red-600 rounded">
+                        <span class="font-bold text-red-600 text-[11px]">Marcar TODO el producto como AGOTADO</span>
+                    </label>
+                </div>
+
                 <div>
                     <label class="block font-bold text-gray-700 text-[11px]">Descripción</label>
                     <input type="text" id="prod-desc" class="w-full border rounded px-2 py-1 text-xs">
@@ -201,7 +256,7 @@
             </form>
             <div class="mt-3 pt-2 border-t">
                 <h4 class="font-bold text-gray-800 text-[11px] mb-1">Tus Productos (En vivo):</h4>
-                <div id="admin-product-list" class="space-y-1 max-h-32 overflow-y-auto"></div>
+                <div id="admin-product-list" class="space-y-1 max-h-36 overflow-y-auto"></div>
             </div>
         </div>
     </div>
@@ -211,7 +266,7 @@
         <div class="bg-white rounded-2xl w-full max-w-sm p-4 relative shadow-2xl my-auto text-xs">
             <button onclick="toggleCart()" class="absolute top-3 right-3 text-gray-500 bg-gray-100 w-7 h-7 rounded-full font-bold">✕</button>
             <h3 class="text-sm font-black mb-2 text-brand-dark"><i class="fa-solid fa-cart-shopping text-brand-pink"></i> Tu Carrito</h3>
-            <div id="cart-items" class="divide-y max-h-32 overflow-y-auto mb-2"></div>
+            <div id="cart-items" class="divide-y max-h-36 overflow-y-auto mb-2"></div>
             <div class="bg-gray-50 p-2.5 rounded-xl mb-2 border">
                 <p class="font-bold text-[11px] mb-1"><i class="fa-solid fa-truck-fast text-brand-pink"></i> Envío SkydropX (México)</p>
                 <div class="flex gap-1.5">
@@ -272,8 +327,27 @@
 
         let products = [];
         let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
+        let currentModalProductId = null;
+        let currentModalSelectedSize = '';
+        let currentGalleryImages = [];
+        let currentGalleryIndex = 0;
+
         const WHATSAPP_NUMBER = '15756548307';
         const ADMIN_PIN = '1234';
+
+        // Helper para obtener hasta 3 imágenes limpias del producto (compatible con productos antiguos de 1 foto)
+        function getProductImages(p) {
+            if (Array.isArray(p.images) && p.images.length > 0) {
+                return p.images.filter(Boolean).slice(0, 3);
+            }
+            return p.img ? [p.img] : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500'];
+        }
+
+        function parseSizesList(raw) {
+            if (Array.isArray(raw)) return raw.map(s => String(s).trim()).filter(Boolean);
+            if (!raw) return [];
+            return String(raw).split(',').map(s => s.trim()).filter(Boolean);
+        }
 
         // ESCUCHA EN TIEMPO REAL DEL CATÁLOGO INDIVIDUAL
         onSnapshot(productsCol, (snapshot) => {
@@ -437,17 +511,46 @@
                 return;
             }
             list.forEach(p => {
+                const imgs = getProductImages(p);
+                const sizes = parseSizesList(p.sizes);
+                const soldOutSizes = parseSizesList(p.soldOutSizes).map(s => s.toUpperCase());
+                const allSizesSoldOut = sizes.length > 0 && sizes.every(s => soldOutSizes.includes(s.toUpperCase()));
+                const isSoldOut = Boolean(p.soldOut) || allSizesSoldOut;
+
+                const sizesBadgeHtml = sizes.length > 0
+                    ? `<p class="text-[10px] text-gray-500 mt-0.5 truncate">Tallas: <span class="font-semibold text-gray-700">${sizes.join(', ')}</span></p>`
+                    : '';
+
+                const photosBadgeHtml = imgs.length > 1
+                    ? `<span class="absolute bottom-1.5 right-1.5 bg-black/70 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full"><i class="fa-regular fa-images"></i> ${imgs.length}</span>`
+                    : '';
+
+                const soldOutOverlayHtml = isSoldOut
+                    ? `<div class="absolute inset-0 bg-black/55 flex items-center justify-center"><span class="bg-red-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded shadow">Agotado</span></div>`
+                    : '';
+
+                const actionBtnHtml = isSoldOut
+                    ? `<button type="button" disabled class="w-full bg-gray-200 text-gray-500 font-bold py-1.5 rounded text-[11px] cursor-not-allowed">Agotado</button>`
+                    : (sizes.length > 0
+                        ? `<button type="button" onclick="openProductModal('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">Elegir Talla</button>`
+                        : `<button type="button" onclick="addToCart('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button>`);
+
                 grid.innerHTML += `
-                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col justify-between">
+                    <div class="bg-white rounded-lg shadow-sm border overflow-hidden flex flex-col justify-between ${isSoldOut ? 'opacity-85' : ''}">
                         <div onclick="openProductModal('${p.id}')" class="cursor-pointer">
-                            <img src="${p.img}" class="w-full h-32 object-cover bg-gray-100">
+                            <div class="relative w-full h-36 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                <img src="${imgs[0]}" class="w-full h-full object-contain">
+                                ${photosBadgeHtml}
+                                ${soldOutOverlayHtml}
+                            </div>
                             <div class="p-2">
                                 <span class="text-[9px] font-bold text-brand-pink bg-pink-50 px-1.5 py-0.5 rounded">${p.cat}</span>
                                 <h3 class="font-bold text-xs mt-1 line-clamp-1">${p.name}</h3>
+                                ${sizesBadgeHtml}
                                 <p class="text-sm font-black mt-1">$${Number(p.price).toLocaleString()} <span class="text-[10px] font-normal text-gray-500">MXN</span></p>
                             </div>
                         </div>
-                        <div class="p-2 pt-0"><button onclick="addToCart('${p.id}')" class="w-full bg-brand-dark text-white font-bold py-1.5 rounded text-[11px]">+ Agregar</button></div>
+                        <div class="p-2 pt-0">${actionBtnHtml}</div>
                     </div>
                 `;
             });
@@ -469,21 +572,22 @@
             applyCurrentFilter();
         };
 
-        window.convertImageFile = function(input) {
+        // Comprimir hasta 3 fotos por producto (480px y calidad 0.62 para caber cómodamente en Firestore)
+        window.convertMultiImageFile = function(input, slot) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
-                        const maxW = 500;
+                        const maxW = 480;
                         const scale = img.width > maxW ? maxW / img.width : 1;
                         canvas.width = img.width * scale;
                         canvas.height = img.height * scale;
                         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
-                        document.getElementById('prod-img').value = compressedDataUrl;
-                        const preview = document.getElementById('img-preview');
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.62);
+                        document.getElementById(`prod-img-${slot}`).value = compressedDataUrl;
+                        const preview = document.getElementById(`img-preview-${slot}`);
                         preview.src = compressedDataUrl;
                         preview.classList.remove('hidden');
                     };
@@ -506,7 +610,13 @@
         window.resetForm = function() {
             document.getElementById('product-form').reset();
             document.getElementById('prod-id').value = '';
-            document.getElementById('img-preview').classList.add('hidden');
+            document.getElementById('prod-soldout').checked = false;
+            [1, 2, 3].forEach(slot => {
+                document.getElementById(`prod-img-${slot}`).value = '';
+                const prev = document.getElementById(`img-preview-${slot}`);
+                prev.src = '';
+                prev.classList.add('hidden');
+            });
             document.getElementById('btn-save-prod').innerText = 'Guardar en la Nube';
         };
 
@@ -514,19 +624,35 @@
             const list = document.getElementById('admin-product-list');
             list.innerHTML = '';
             products.forEach(p => {
+                const imgs = getProductImages(p);
+                const isSoldOut = Boolean(p.soldOut);
                 list.innerHTML += `
                     <div class="flex items-center justify-between bg-gray-50 p-1.5 rounded border">
                         <div class="flex items-center gap-1.5 overflow-hidden">
-                            <img src="${p.img}" class="w-7 h-7 object-cover rounded">
-                            <div class="truncate"><p class="font-bold text-[11px] truncate">${p.name}</p><p class="text-[9px] text-gray-500">$${p.price}</p></div>
+                            <img src="${imgs[0]}" class="w-7 h-7 object-cover rounded">
+                            <div class="truncate">
+                                <p class="font-bold text-[11px] truncate">${p.name} ${isSoldOut ? '<span class="text-red-600 font-black">[AGOTADO]</span>' : ''}</p>
+                                <p class="text-[9px] text-gray-500">$${p.price} · ${imgs.length} foto(s)</p>
+                            </div>
                         </div>
-                        <div class="flex gap-1">
+                        <div class="flex gap-1 shrink-0">
+                            <button type="button" onclick="toggleQuickSoldOut('${p.id}', ${!isSoldOut})" title="Cambiar estado Agotado" class="${isSoldOut ? 'bg-emerald-600' : 'bg-amber-500'} text-white px-1.5 py-0.5 rounded text-[9px] font-bold">
+                                ${isSoldOut ? 'Activar' : 'Agotar'}
+                            </button>
                             <button type="button" onclick="editProduct('${p.id}')" class="bg-blue-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">Editar</button>
                             <button type="button" onclick="deleteProduct('${p.id}')" class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[9px] font-bold">X</button>
                         </div>
                     </div>
                 `;
             });
+        };
+
+        window.toggleQuickSoldOut = async function(id, nextSoldOutState) {
+            try {
+                await updateDoc(doc(db, "productos", id), { soldOut: nextSoldOutState });
+            } catch (err) {
+                alert("No se pudo actualizar el estado: " + err.message);
+            }
         };
 
         window.saveProduct = async function(e) {
@@ -536,12 +662,27 @@
             btn.innerText = "Guardando...";
 
             const id = document.getElementById('prod-id').value;
+            const img1 = document.getElementById('prod-img-1').value.trim();
+            const img2 = document.getElementById('prod-img-2').value.trim();
+            const img3 = document.getElementById('prod-img-3').value.trim();
+            const imagesList = [img1, img2, img3].filter(Boolean);
+            const mainImg = imagesList[0] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500';
+            if (imagesList.length === 0) imagesList.push(mainImg);
+
+            const sizes = parseSizesList(document.getElementById('prod-sizes').value);
+            const soldOutSizes = parseSizesList(document.getElementById('prod-soldout-sizes').value);
+
             const productData = {
-                name: document.getElementById('prod-name').value,
+                name: document.getElementById('prod-name').value.trim(),
                 cat: document.getElementById('prod-cat').value,
                 price: parseFloat(document.getElementById('prod-price').value),
-                img: document.getElementById('prod-img').value || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500',
-                desc: document.getElementById('prod-desc').value
+                img: mainImg,
+                images: imagesList,
+                sizes: sizes,
+                soldOutSizes: soldOutSizes,
+                measurements: document.getElementById('prod-measurements').value.trim(),
+                soldOut: document.getElementById('prod-soldout').checked,
+                desc: document.getElementById('prod-desc').value.trim()
             };
 
             try {
@@ -555,7 +696,7 @@
                 resetForm();
             } catch (err) {
                 console.error(err);
-                alert("Error al guardar. Intenta con una foto más ligera o revisa las reglas de Firestore.");
+                alert("Error al guardar. Si subiste 3 fotos muy pesadas, intenta con fotos más ligeras o enlaces.");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Guardar en la Nube";
@@ -569,11 +710,25 @@
                 document.getElementById('prod-name').value = p.name;
                 document.getElementById('prod-cat').value = p.cat;
                 document.getElementById('prod-price').value = p.price;
-                document.getElementById('prod-img').value = p.img;
                 document.getElementById('prod-desc').value = p.desc || '';
-                const preview = document.getElementById('img-preview');
-                preview.src = p.img;
-                preview.classList.remove('hidden');
+                document.getElementById('prod-sizes').value = parseSizesList(p.sizes).join(', ');
+                document.getElementById('prod-soldout-sizes').value = parseSizesList(p.soldOutSizes).join(', ');
+                document.getElementById('prod-measurements').value = p.measurements || '';
+                document.getElementById('prod-soldout').checked = Boolean(p.soldOut);
+
+                const imgs = getProductImages(p);
+                [1, 2, 3].forEach((slot, idx) => {
+                    const url = imgs[idx] || '';
+                    document.getElementById(`prod-img-${slot}`).value = url;
+                    const preview = document.getElementById(`img-preview-${slot}`);
+                    if (url) {
+                        preview.src = url;
+                        preview.classList.remove('hidden');
+                    } else {
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                    }
+                });
                 document.getElementById('btn-save-prod').innerText = 'Actualizar Producto';
             }
         };
@@ -588,23 +743,151 @@
             }
         };
 
+        // MODAL DETALLE PRODUCTO (3 FOTOS + ZOOM COMPLETO + SELECTOR TALLAS + AGOTADO)
         window.openProductModal = function(id) {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
+
+            currentModalProductId = p.id;
+            currentGalleryImages = getProductImages(p);
+            currentGalleryIndex = 0;
+
+            const sizes = parseSizesList(p.sizes);
+            const soldOutSizes = parseSizesList(p.soldOutSizes).map(s => s.toUpperCase());
+            const availableSizes = sizes.filter(s => !soldOutSizes.includes(s.toUpperCase()));
+            const isSoldOut = Boolean(p.soldOut) || (sizes.length > 0 && availableSizes.length === 0);
+
+            currentModalSelectedSize = availableSizes.length > 0 ? availableSizes[0] : '';
+
+            const thumbsHtml = currentGalleryImages.length > 1
+                ? `<div class="flex items-center justify-center gap-2 mt-2">
+                    ${currentGalleryImages.map((src, i) => `
+                        <button type="button" onclick="selectModalGalleryImage(${i})"
+                                class="modal-thumb border-2 ${i === 0 ? 'border-brand-pink' : 'border-gray-200'} rounded-lg overflow-hidden w-12 h-12 bg-gray-50">
+                            <img src="${src}" class="w-full h-full object-contain">
+                        </button>
+                    `).join('')}
+                   </div>`
+                : '';
+
+            const sizesHtml = sizes.length > 0
+                ? `<div class="mt-2.5">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[11px] font-bold text-gray-800">Selecciona tu talla / medida:</span>
+                        <span id="selected-size-label" class="text-[11px] font-bold text-brand-pink">${currentModalSelectedSize || 'Sin stock'}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${sizes.map(sz => {
+                            const szSoldOut = Boolean(p.soldOut) || soldOutSizes.includes(sz.toUpperCase());
+                            const isSelected = !szSoldOut && sz === currentModalSelectedSize;
+                            if (szSoldOut) {
+                                return `<button type="button" disabled class="px-2.5 py-1 rounded-lg border border-gray-200 bg-gray-100 text-gray-400 text-[11px] font-bold line-through cursor-not-allowed">${sz} (Agotada)</button>`;
+                            }
+                            return `<button type="button" data-size="${sz}" onclick="selectModalSize('${sz}')"
+                                            class="modal-size-btn px-3 py-1 rounded-lg border-2 ${isSelected ? 'border-brand-pink bg-pink-50 text-brand-pink' : 'border-gray-200 text-gray-700'} text-[11px] font-bold">
+                                        ${sz}
+                                    </button>`;
+                        }).join('')}
+                    </div>
+                   </div>`
+                : '';
+
+            const measurementsHtml = p.measurements
+                ? `<p class="text-[11px] text-gray-600 bg-slate-50 border rounded-lg px-2.5 py-1.5 mt-2"><i class="fa-solid fa-ruler-horizontal text-brand-pink"></i> <strong>Medidas:</strong> ${p.measurements}</p>`
+                : '';
+
+            const ctaButtonsHtml = isSoldOut
+                ? `<button type="button" disabled class="w-full bg-gray-300 text-gray-600 font-black py-2.5 rounded-lg text-xs uppercase cursor-not-allowed">Producto Agotado</button>`
+                : `<div class="grid grid-cols-2 gap-1.5">
+                    <button type="button" onclick="handleModalAddToCart(false)" class="w-full bg-brand-dark text-white font-bold py-2 rounded-lg text-xs">+ Al Carrito</button>
+                    <button type="button" onclick="handleModalAddToCart(true)" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
+                   </div>`;
+
             document.getElementById('modal-content').innerHTML = `
-                <img src="${p.img}" class="w-full h-44 object-cover rounded-xl mb-2">
-                <span class="text-[10px] font-bold text-brand-pink bg-pink-50 px-2 py-0.5 rounded">${p.cat}</span>
+                <div class="relative bg-slate-100 rounded-xl overflow-hidden flex items-center justify-center h-52 cursor-zoom-in" onclick="openFullscreenImage(currentGalleryIndex)">
+                    <img id="modal-main-img" src="${currentGalleryImages[0]}" class="w-full h-full object-contain">
+                    <span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <i class="fa-solid fa-expand"></i> Ver completa
+                    </span>
+                    ${isSoldOut ? `<div class="absolute inset-0 bg-black/50 flex items-center justify-center"><span class="bg-red-600 text-white text-xs font-black px-3 py-1 rounded shadow">AGOTADO</span></div>` : ''}
+                </div>
+                ${thumbsHtml}
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-brand-pink bg-pink-50 px-2 py-0.5 rounded">${p.cat}</span>
+                    ${isSoldOut ? `<span class="text-[10px] font-bold text-red-600">Sin existencias</span>` : `<span class="text-[10px] font-semibold text-emerald-600">Disponible</span>`}
+                </div>
                 <h2 class="text-base font-black mt-1">${p.name}</h2>
-                <p class="text-lg font-black mt-1">$${Number(p.price).toLocaleString()} MXN</p>
-                <p class="text-xs text-gray-600 mt-1">${p.desc || ''}</p>
+                <p class="text-lg font-black mt-0.5">$${Number(p.price).toLocaleString()} MXN</p>
+                ${p.desc ? `<p class="text-xs text-gray-600 mt-1">${p.desc}</p>` : ''}
+                ${measurementsHtml}
+                ${sizesHtml}
                 <div class="mt-3 space-y-1.5">
-                    <button onclick="addToCart('${p.id}'); closeProductModal(); toggleCart();" class="w-full bg-brand-pink text-white font-bold py-2 rounded-lg text-xs">Comprar Ahora</button>
+                    ${ctaButtonsHtml}
                     <a href="https://wa.me/${WHATSAPP_NUMBER}?text=Hola,%20tengo%20una%20duda%20sobre:%20${encodeURIComponent(p.name)}%20($${p.price}MXN)" target="_blank" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center gap-1.5">
                         <i class="fa-brands fa-whatsapp"></i> Dudas por WhatsApp
                     </a>
                 </div>
             `;
             document.getElementById('product-modal').classList.remove('hidden');
+        };
+
+        window.selectModalGalleryImage = function(idx) {
+            if (!currentGalleryImages[idx]) return;
+            currentGalleryIndex = idx;
+            const mainImg = document.getElementById('modal-main-img');
+            if (mainImg) mainImg.src = currentGalleryImages[idx];
+            document.querySelectorAll('.modal-thumb').forEach((btn, i) => {
+                btn.className = `modal-thumb border-2 ${i === idx ? 'border-brand-pink' : 'border-gray-200'} rounded-lg overflow-hidden w-12 h-12 bg-gray-50`;
+            });
+        };
+
+        window.selectModalSize = function(size) {
+            currentModalSelectedSize = size;
+            const lbl = document.getElementById('selected-size-label');
+            if (lbl) lbl.innerText = size;
+            document.querySelectorAll('.modal-size-btn').forEach(btn => {
+                const active = btn.dataset.size === size;
+                btn.className = `modal-size-btn px-3 py-1 rounded-lg border-2 ${active ? 'border-brand-pink bg-pink-50 text-brand-pink' : 'border-gray-200 text-gray-700'} text-[11px] font-bold`;
+            });
+        };
+
+        window.handleModalAddToCart = function(openCartAfter) {
+            const p = products.find(prod => prod.id === currentModalProductId);
+            if (!p) return;
+            const sizes = parseSizesList(p.sizes);
+            if (sizes.length > 0 && !currentModalSelectedSize) {
+                alert("Por favor selecciona una talla disponible.");
+                return;
+            }
+            addToCart(p.id, currentModalSelectedSize);
+            closeProductModal();
+            if (openCartAfter) toggleCart();
+        };
+
+        // VISOR PANTALLA COMPLETA (LIGHTBOX)
+        window.openFullscreenImage = function(startIndex = 0) {
+            if (!currentGalleryImages.length) return;
+            currentGalleryIndex = startIndex;
+            const modal = document.getElementById('fullscreen-image-modal');
+            const imgEl = document.getElementById('fullscreen-img-element');
+            const counterEl = document.getElementById('fullscreen-img-counter');
+            const thumbsEl = document.getElementById('fullscreen-thumbs');
+
+            imgEl.src = currentGalleryImages[currentGalleryIndex];
+            counterEl.innerText = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
+
+            thumbsEl.innerHTML = currentGalleryImages.map((src, i) => `
+                <button type="button" onclick="openFullscreenImage(${i})"
+                        class="border-2 ${i === currentGalleryIndex ? 'border-brand-pink' : 'border-white/30'} rounded-lg overflow-hidden w-12 h-12 bg-black">
+                    <img src="${src}" class="w-full h-full object-contain">
+                </button>
+            `).join('');
+
+            modal.classList.remove('hidden');
+        };
+
+        window.closeFullscreenImage = function() {
+            document.getElementById('fullscreen-image-modal').classList.add('hidden');
         };
 
         window.closeProductModal = function() {
@@ -617,12 +900,32 @@
             if (!m.classList.contains('hidden')) renderCartItems();
         };
 
-        window.addToCart = function(id) {
+        window.addToCart = function(id, selectedSize = '') {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
-            const e = cart.find(item => item.id === id);
-            if (e) e.qty++;
-            else cart.push({ ...p, qty: 1 });
+            if (p.soldOut) {
+                alert("Este producto está agotado.");
+                return;
+            }
+            const sizes = parseSizesList(p.sizes);
+            if (sizes.length > 0 && !selectedSize) {
+                openProductModal(id);
+                return;
+            }
+            const cartKey = `${id}__${selectedSize || 'unica'}`;
+            const imgs = getProductImages(p);
+            const existing = cart.find(item => item.cartKey === cartKey);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({
+                    ...p,
+                    img: imgs[0],
+                    cartKey,
+                    selectedSize: selectedSize || '',
+                    qty: 1
+                });
+            }
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
         };
 
@@ -640,7 +943,18 @@
             let sub = 0;
             cart.forEach(i => {
                 sub += i.price * i.qty;
-                c.innerHTML += `<div class="py-1.5 flex items-center justify-between"><div class="flex items-center gap-2"><img src="${i.img}" class="w-8 h-8 object-cover rounded"><div><p class="font-bold line-clamp-1">${i.name}</p><p class="text-[10px] text-gray-500">$${i.price} x ${i.qty}</p></div></div><button onclick="removeFromCart('${i.id}')" class="text-red-500 font-bold px-1">X</button></div>`;
+                const sizeTag = i.selectedSize ? `<span class="text-[9px] font-bold bg-pink-50 text-brand-pink px-1.5 py-0.2 rounded ml-1">Talla: ${i.selectedSize}</span>` : '';
+                c.innerHTML += `
+                    <div class="py-1.5 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <img src="${i.img}" class="w-8 h-8 object-contain bg-gray-50 rounded border">
+                            <div>
+                                <p class="font-bold line-clamp-1">${i.name} ${sizeTag}</p>
+                                <p class="text-[10px] text-gray-500">$${i.price} x ${i.qty}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart('${i.cartKey}')" class="text-red-500 font-bold px-1">X</button>
+                    </div>`;
             });
             const tot = sub + shippingCost;
             document.getElementById('cart-subtotal').innerText = `$${sub.toLocaleString()} MXN`;
@@ -657,8 +971,8 @@
             }
         };
 
-        window.removeFromCart = function(id) {
-            cart = cart.filter(i => i.id !== id);
+        window.removeFromCart = function(cartKey) {
+            cart = cart.filter(i => i.cartKey !== cartKey);
             renderCartItems();
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
         };
@@ -701,7 +1015,11 @@
             const tot = sub + shippingCost;
 
             if (selectedPaymentMethod === 'spei') {
-                alert(`Transferencia SPEI por $${tot.toLocaleString()} MXN.\n\nCLABE: 721180100034025723\n\nRealiza tu transferencia y si tienes dudas escríbenos por el botón de WhatsApp.`);
+                alert(`Transferencia SPEI por $${tot.toLocaleString()} MXN.
+
+CLABE: 721180100034025723
+
+Realiza tu transferencia y si tienes dudas escríbenos por el botón de WhatsApp.`);
                 return;
             }
 
@@ -722,7 +1040,9 @@
             }
 
             const metodoTexto = selectedPaymentMethod === 'oxxo' ? 'Código de pago OXXO' : 'Pago con Tarjeta';
-            alert(`${metodoTexto} por $${tot.toLocaleString()} MXN.\n\nLa pasarela en línea (Stripe) está lista para conectarse en cuanto actives tu cuenta en modo producción.`);
+            alert(`${metodoTexto} por $${tot.toLocaleString()} MXN.
+
+La pasarela en línea (Stripe) está lista para conectarse en cuanto actives tu cuenta en modo producción.`);
         };
     </script>
 </body>
