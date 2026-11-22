@@ -73,11 +73,11 @@
             </div>
             <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                 <!-- 3 clics/toques en esta imagen piden PIN Admin y abren el mini-editor exclusivo -->
-                <div id="package-cover-trigger" class="relative cursor-pointer select-none" title="3 toques para editar imagen y textos (Admin)">
+                <div id="package-cover-trigger" class="relative cursor-pointer select-none w-full" title="3 toques para editar imagen y textos (Admin)">
                     <img id="package-cover-img"
                          src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800"
                          alt="Paquetes de Camisas"
-                         class="w-full h-52 object-contain bg-slate-100 rounded-xl border">
+                         class="w-full h-auto rounded-xl border block">
                 </div>
                 <div class="space-y-2 text-xs">
                     <p id="pkg-subtitle-text" class="font-bold text-brand-dark">Calidad Premium · Algodón Peinado Diseño Bordado 3D:</p>
@@ -473,7 +473,7 @@
             setTimeout(() => { clickCount = 0; }, 1000);
         });
 
-        // 3 CLICS EN IMAGEN DE PAQUETES -> PIN ADMIN Y MINI-EDITOR EXCLUSIVO DE PAQUETES
+        // 1 CLIC EN IMAGEN DEL PAQUETE -> ABRE ZOOM; 3 CLICS -> PIN ADMIN Y MINI-EDITOR EXCLUSIVO DE PAQUETES
         let pkgClickCount = 0;
         let pkgClickTimer = null;
         document.getElementById('package-cover-trigger').addEventListener('click', (e) => {
@@ -490,9 +490,19 @@
                     alert("PIN incorrecto.");
                 }
             } else {
-                pkgClickTimer = setTimeout(() => { pkgClickCount = 0; }, 1000);
+                pkgClickTimer = setTimeout(() => {
+                    pkgClickCount = 0;
+                    const pkgImgSrc = document.getElementById('package-cover-img')?.src;
+                    if (pkgImgSrc) openSingleFullscreenImage(pkgImgSrc);
+                }, 260);
             }
         });
+
+        window.openSingleFullscreenImage = function(imgSrc) {
+            if (!imgSrc) return;
+            currentGalleryImages = [imgSrc];
+            openFullscreenImage(0);
+        };
 
         window.openPackageEditorModal = function() {
             const currentImg = document.getElementById('package-cover-img').src;
@@ -995,12 +1005,14 @@
             imgEl.src = currentGalleryImages[currentGalleryIndex];
             counterEl.innerText = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
 
-            thumbsEl.innerHTML = currentGalleryImages.map((src, i) => `
-                <button type="button" onclick="openFullscreenImage(${i})"
-                        class="border-2 ${i === currentGalleryIndex ? 'border-brand-pink' : 'border-white/30'} rounded-lg overflow-hidden w-11 h-11 bg-black">
-                    <img src="${src}" class="w-full h-full object-contain">
-                </button>
-            `).join('');
+            thumbsEl.innerHTML = currentGalleryImages.length > 1
+                ? currentGalleryImages.map((src, i) => `
+                    <button type="button" onclick="openFullscreenImage(${i})"
+                            class="border-2 ${i === currentGalleryIndex ? 'border-brand-pink' : 'border-white/30'} rounded-lg overflow-hidden w-11 h-11 bg-black">
+                        <img src="${src}" class="w-full h-full object-contain">
+                    </button>
+                `).join('')
+                : '';
 
             fsModal.classList.remove('hidden');
             if (!alreadyOpen) pushNavState('fullscreen-image', { idx: startIndex });
