@@ -116,16 +116,23 @@
         </div>
     </div>
 
-    <!-- VISOR DE IMAGEN COMPLETA (LIGHTBOX PANTALLA COMPLETA SIN RECORTES) -->
-    <div id="fullscreen-image-modal" class="fixed inset-0 bg-black/95 z-[60] hidden flex flex-col items-center justify-between p-4">
-        <div class="w-full flex items-center justify-between text-white text-xs">
-            <span id="fullscreen-img-counter" class="bg-white/10 px-2.5 py-1 rounded-full font-bold">1 / 1</span>
-            <button type="button" onclick="closeFullscreenImage()" class="bg-white/20 hover:bg-white/30 text-white w-9 h-9 rounded-full font-bold text-base">✕</button>
+    <!-- VISOR DE IMAGEN COMPLETA (MEDIA PANTALLA CON ZOOM INTERACTIVO) -->
+    <div id="fullscreen-image-modal" onclick="if(event.target === this) closeFullscreenImage()" class="fixed inset-0 bg-black/70 z-[60] hidden flex items-center justify-center p-3">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md h-[52vh] flex flex-col justify-between p-3 shadow-2xl relative">
+            <div class="w-full flex items-center justify-between text-white text-xs pb-1.5 border-b border-zinc-800">
+                <div class="flex items-center gap-2">
+                    <span id="fullscreen-img-counter" class="bg-white/10 px-2.5 py-0.5 rounded-full font-bold">1 / 1</span>
+                    <button type="button" id="btn-toggle-zoom" onclick="toggleFullscreenZoom()" class="bg-brand-pink text-white px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i> <span id="zoom-btn-label">Zoom 2x</span>
+                    </button>
+                </div>
+                <button type="button" onclick="closeFullscreenImage()" class="bg-white/20 hover:bg-white/30 text-white w-7 h-7 rounded-full font-bold text-sm">✕</button>
+            </div>
+            <div id="fullscreen-zoom-container" class="flex-1 w-full overflow-auto flex items-center justify-center my-1.5 bg-black/50 rounded-xl relative" style="touch-action: pinch-zoom pan-x pan-y;">
+                <img id="fullscreen-img-element" src="" alt="Vista completa" onclick="toggleFullscreenZoom()" class="max-w-full max-h-full object-contain rounded-lg transition-transform duration-200 cursor-zoom-in">
+            </div>
+            <div id="fullscreen-thumbs" class="flex items-center justify-center gap-2 pt-1"></div>
         </div>
-        <div class="flex-1 w-full flex items-center justify-center overflow-auto my-2">
-            <img id="fullscreen-img-element" src="" alt="Vista completa" class="max-w-full max-h-[80vh] object-contain rounded-lg select-none">
-        </div>
-        <div id="fullscreen-thumbs" class="flex items-center justify-center gap-2 pb-1"></div>
     </div>
 
     <!-- MINI-EDITOR EXCLUSIVO DE PAQUETES (ACTIVADO CON 3 TOQUES + PIN EN LA IMAGEN DE 'TODO') -->
@@ -331,6 +338,7 @@
         let currentModalSelectedSize = '';
         let currentGalleryImages = [];
         let currentGalleryIndex = 0;
+        let isFullscreenZoomed = false;
 
         const WHATSAPP_NUMBER = '15756548307';
         const ADMIN_PIN = '1234';
@@ -864,10 +872,40 @@
             if (openCartAfter) toggleCart();
         };
 
-        // VISOR PANTALLA COMPLETA (LIGHTBOX)
+        // VISOR MEDIA PANTALLA CON ZOOM
+        function resetFullscreenZoomState() {
+            isFullscreenZoomed = false;
+            const imgEl = document.getElementById('fullscreen-img-element');
+            const labelEl = document.getElementById('zoom-btn-label');
+            if (imgEl) {
+                imgEl.style.transform = 'scale(1)';
+                imgEl.style.transformOrigin = 'center center';
+                imgEl.classList.remove('cursor-zoom-out');
+                imgEl.classList.add('cursor-zoom-in');
+            }
+            if (labelEl) labelEl.innerText = 'Zoom 2x';
+        }
+
+        window.toggleFullscreenZoom = function() {
+            const imgEl = document.getElementById('fullscreen-img-element');
+            const labelEl = document.getElementById('zoom-btn-label');
+            if (!imgEl) return;
+            isFullscreenZoomed = !isFullscreenZoomed;
+            if (isFullscreenZoomed) {
+                imgEl.style.transform = 'scale(2.2)';
+                imgEl.style.transformOrigin = 'top left';
+                imgEl.classList.remove('cursor-zoom-in');
+                imgEl.classList.add('cursor-zoom-out');
+                if (labelEl) labelEl.innerText = 'Alejar 1x';
+            } else {
+                resetFullscreenZoomState();
+            }
+        };
+
         window.openFullscreenImage = function(startIndex = 0) {
             if (!currentGalleryImages.length) return;
             currentGalleryIndex = startIndex;
+            resetFullscreenZoomState();
             const modal = document.getElementById('fullscreen-image-modal');
             const imgEl = document.getElementById('fullscreen-img-element');
             const counterEl = document.getElementById('fullscreen-img-counter');
@@ -878,7 +916,7 @@
 
             thumbsEl.innerHTML = currentGalleryImages.map((src, i) => `
                 <button type="button" onclick="openFullscreenImage(${i})"
-                        class="border-2 ${i === currentGalleryIndex ? 'border-brand-pink' : 'border-white/30'} rounded-lg overflow-hidden w-12 h-12 bg-black">
+                        class="border-2 ${i === currentGalleryIndex ? 'border-brand-pink' : 'border-white/30'} rounded-lg overflow-hidden w-11 h-11 bg-black">
                     <img src="${src}" class="w-full h-full object-contain">
                 </button>
             `).join('');
@@ -887,6 +925,7 @@
         };
 
         window.closeFullscreenImage = function() {
+            resetFullscreenZoomState();
             document.getElementById('fullscreen-image-modal').classList.add('hidden');
         };
 
