@@ -356,7 +356,7 @@
         }
 
         let products = [];
-        let cart = loadPersistedCart(), currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
+        let cart = loadPersistedCart(), currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0, lastQuotedPostalCode = '';
         let currentModalProductId = null;
         let currentModalSelectedSize = '';
         let currentGalleryImages = [];
@@ -1065,6 +1065,7 @@
             }
             savePersistedCart(cart);
             updateCartBadgeCount();
+            if (lastQuotedPostalCode) recalculateShippingForCart();
         };
 
         window.renderCartItems = function() {
@@ -1112,18 +1113,65 @@
         window.removeFromCart = function(cartKey) {
             cart = cart.filter(i => i.cartKey !== cartKey);
             savePersistedCart(cart);
+            if (cart.length === 0) {
+                shippingCost = 0;
+                lastQuotedPostalCode = '';
+                const res = document.getElementById('shipping-result');
+                if (res) res.innerHTML = '';
+            } else if (lastQuotedPostalCode) {
+                recalculateShippingForCart();
+            }
             renderCartItems();
             updateCartBadgeCount();
         };
 
+        function getCategoryWeightKg(cat) {
+            const c = String(cat || '').toLowerCase();
+            if (c.includes('tenis')) return 0.9;
+            if (c.includes('mallas')) return 0.35;
+            if (c.includes('playeras')) return 0.25;
+            return 0.4;
+        }
+
+        function computeEstimatedShipping(cp) {
+            const totalQty = cart.reduce((sum, item) => sum + (Number(item.qty) || 1), 0);
+            const totalWeightKg = cart.reduce((sum, item) => sum + ((Number(item.qty) || 1) * getCategoryWeightKg(item.cat)), 0);
+            const isLocalZone = cp.startsWith('32');
+            const baseRate = isLocalZone ? 90 : 180;
+            const extraQty = Math.max(0, totalQty - 1);
+            const perExtraPieceRate = isLocalZone ? 15 : 25;
+            const weightSurcharge = totalWeightKg > 1.5 ? Math.ceil((totalWeightKg - 1.5) / 1) * (isLocalZone ? 10 : 20) : 0;
+            const cost = baseRate + (extraQty * perExtraPieceRate) + weightSurcharge;
+            return { cost, totalQty, totalWeightKg: Number(totalWeightKg.toFixed(2)) };
+        }
+
+        function recalculateShippingForCart() {
+            const res = document.getElementById('shipping-result');
+            if (!lastQuotedPostalCode || lastQuotedPostalCode.length !== 5) return;
+            if (cart.length === 0) {
+                shippingCost = 0;
+                if (res) res.innerHTML = '';
+                return;
+            }
+            const calc = computeEstimatedShipping(lastQuotedPostalCode);
+            shippingCost = calc.cost;
+            if (res) {
+                res.innerHTML = `<span class="text-emerald-600 font-bold">✓ SkydropX estimado (${calc.totalQty} pzas · ~${calc.totalWeightKg} kg): $${shippingCost} MXN</span>`;
+            }
+        }
+
         window.calculateShipping = function() {
-            const cp = document.getElementById('postal-code').value, res = document.getElementById('shipping-result');
+            const cp = document.getElementById('postal-code').value.trim(), res = document.getElementById('shipping-result');
             if (cp.length !== 5) {
                 res.innerHTML = `<span class="text-red-500 font-bold">CP inválido.</span>`;
                 return;
             }
-            shippingCost = cp.startsWith('32') ? 90 : 180;
-            res.innerHTML = `<span class="text-emerald-600 font-bold">✓ SkydropX: $${shippingCost} MXN</span>`;
+            if (cart.length === 0) {
+                res.innerHTML = `<span class="text-amber-600 font-bold">Agrega al menos 1 producto al carrito.</span>`;
+                return;
+            }
+            lastQuotedPostalCode = cp;
+            recalculateShippingForCart();
             renderCartItems();
         };
 
