@@ -288,22 +288,17 @@
                 <div class="flex justify-between text-sm font-black pt-1 border-t"><span>Total:</span><span id="cart-total" class="text-brand-pink">$0 MXN</span></div>
             </div>
             <div class="mb-3">
-                <p class="font-bold text-[11px] mb-1">Pago Nacional (MXN):</p>
-                <div class="grid grid-cols-3 gap-1.5 mb-2">
-                    <button type="button" onclick="selectPayment('tarjeta')" id="pay-tarjeta" class="p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold">Tarjeta</button>
-                    <button type="button" onclick="selectPayment('spei')" id="pay-spei" class="p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold">SPEI</button>
-                    <button type="button" onclick="selectPayment('oxxo')" id="pay-oxxo" class="p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold">OXXO</button>
+                <p class="font-bold text-[11px] mb-1">Método de Pago (México):</p>
+                <div class="grid grid-cols-2 gap-1.5 mb-2">
+                    <button type="button" onclick="selectPayment('spei')" id="pay-spei" class="p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold">Transferencia SPEI</button>
+                    <button type="button" onclick="selectPayment('tarjeta')" id="pay-tarjeta" class="p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold">Depósito a Tarjeta</button>
                 </div>
-                <div id="spei-info-box" class="hidden bg-pink-50 border border-pink-200 p-2 rounded-lg text-[11px]">
-                    <p class="font-bold text-brand-pink">CLABE SPEI:</p>
-                    <p class="font-mono bg-white p-1 rounded border select-all font-bold text-center">721180100034025723</p>
-                </div>
-                <div id="gateway-info-box" class="bg-slate-50 border border-slate-200 p-2 rounded-lg text-[11px] text-gray-600">
-                    Pago seguro con <strong>Tarjeta</strong> (Visa / Mastercard / AMEX).
+                <div id="payment-privacy-box" class="bg-slate-50 border border-slate-200 p-2 rounded-lg text-[11px] text-gray-600">
+                    <i class="fa-solid fa-shield-halved text-brand-pink"></i> Los datos para <strong>Transferencia SPEI</strong> se envían de forma privada por WhatsApp al confirmar tu pedido.
                 </div>
             </div>
-            <button onclick="checkoutOrder()" id="btn-checkout-pay" class="w-full bg-brand-pink text-white font-bold py-2.5 rounded-xl shadow-lg flex items-center justify-center gap-1.5 text-xs">
-                <i class="fa-solid fa-credit-card text-sm"></i> Pagar Pedido ($0 MXN)
+            <button onclick="checkoutOrder()" id="btn-checkout-pay" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow-lg flex items-center justify-center gap-1.5 text-xs">
+                <i class="fa-brands fa-whatsapp text-base"></i> Pagar por WhatsApp ($0 MXN)
             </button>
         </div>
     </div>
@@ -356,7 +351,7 @@
         }
 
         let products = [];
-        let cart = loadPersistedCart(), currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0, lastQuotedPostalCode = '';
+        let cart = loadPersistedCart(), currentCategory = 'todos', selectedPaymentMethod = 'spei', shippingCost = 0, lastQuotedPostalCode = '';
         let currentModalProductId = null;
         let currentModalSelectedSize = '';
         let currentGalleryImages = [];
@@ -1076,7 +1071,7 @@
                 c.innerHTML = `<div class="text-center py-3 text-gray-400">Carrito vacío</div>`;
                 document.getElementById('cart-subtotal').innerText = '$0 MXN';
                 document.getElementById('cart-total').innerText = `$${shippingCost} MXN`;
-                if (payBtn) payBtn.innerHTML = `<i class="fa-solid fa-credit-card text-sm"></i> Pagar Pedido ($${shippingCost} MXN)`;
+                if (payBtn) payBtn.innerHTML = `<i class="fa-brands fa-whatsapp text-base"></i> Pagar por WhatsApp ($${shippingCost} MXN)`;
                 return;
             }
             let sub = 0;
@@ -1100,13 +1095,7 @@
             document.getElementById('cart-shipping-cost').innerText = `$${shippingCost.toLocaleString()} MXN`;
             document.getElementById('cart-total').innerText = `$${tot.toLocaleString()} MXN`;
             if (payBtn) {
-                if (selectedPaymentMethod === 'spei') {
-                    payBtn.innerHTML = `<i class="fa-solid fa-building-columns text-sm"></i> Confirmar Transferencia SPEI ($${tot.toLocaleString()} MXN)`;
-                } else if (selectedPaymentMethod === 'oxxo') {
-                    payBtn.innerHTML = `<i class="fa-solid fa-barcode text-sm"></i> Generar Código OXXO ($${tot.toLocaleString()} MXN)`;
-                } else {
-                    payBtn.innerHTML = `<i class="fa-solid fa-credit-card text-sm"></i> Pagar con Tarjeta ($${tot.toLocaleString()} MXN)`;
-                }
+                payBtn.innerHTML = `<i class="fa-brands fa-whatsapp text-base"></i> Pagar por WhatsApp ($${tot.toLocaleString()} MXN)`;
             }
         };
 
@@ -1177,21 +1166,18 @@
 
         window.selectPayment = function(m) {
             selectedPaymentMethod = m;
-            ['tarjeta', 'spei', 'oxxo'].forEach(x => {
-                document.getElementById(`pay-${x}`).className = x === m ? "p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold" : "p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold";
-            });
-            document.getElementById('spei-info-box').classList.toggle('hidden', m !== 'spei');
-            const infoBox = document.getElementById('gateway-info-box');
-            if (infoBox) {
-                if (m === 'tarjeta') {
-                    infoBox.classList.remove('hidden');
-                    infoBox.innerHTML = `Pago seguro con <strong>Tarjeta</strong> (Visa / Mastercard / AMEX).`;
-                } else if (m === 'oxxo') {
-                    infoBox.classList.remove('hidden');
-                    infoBox.innerHTML = `Genera tu referencia de pago en efectivo para <strong>OXXO</strong>.`;
-                } else {
-                    infoBox.classList.add('hidden');
+            ['spei', 'tarjeta'].forEach(x => {
+                const btn = document.getElementById(`pay-${x}`);
+                if (btn) {
+                    btn.className = x === m
+                        ? "p-1.5 border-2 border-brand-pink bg-pink-50 rounded-lg text-[10px] font-bold"
+                        : "p-1.5 border-2 border-gray-200 rounded-lg text-[10px] font-bold";
                 }
+            });
+            const infoBox = document.getElementById('payment-privacy-box');
+            if (infoBox) {
+                const metodoLabel = m === 'tarjeta' ? 'Depósito a Tarjeta' : 'Transferencia SPEI';
+                infoBox.innerHTML = `<i class="fa-solid fa-shield-halved text-brand-pink"></i> Los datos para <strong>${metodoLabel}</strong> se envían de forma privada por WhatsApp al confirmar tu pedido.`;
             }
             renderCartItems();
         };
@@ -1200,36 +1186,36 @@
             if (cart.length === 0) return alert("Carrito vacío.");
             const sub = cart.reduce((s, i) => s + (i.price * i.qty), 0);
             const tot = sub + shippingCost;
+            const cpInput = (document.getElementById('postal-code')?.value || '').trim();
+            const cpText = lastQuotedPostalCode || (cpInput.length === 5 ? cpInput : 'Por cotizar');
+            const metodoTexto = selectedPaymentMethod === 'tarjeta' ? 'Depósito a Tarjeta' : 'Transferencia SPEI';
 
-            if (selectedPaymentMethod === 'spei') {
-                alert(`Transferencia SPEI por $${tot.toLocaleString()} MXN.
+            const itemsLines = cart.map((item, idx) => {
+                const tallaTxt = item.selectedSize ? ` (Talla: ${item.selectedSize})` : '';
+                const lineTotal = item.price * item.qty;
+                return `${idx + 1}. ${item.name}${tallaTxt} x${item.qty} — $${lineTotal.toLocaleString()} MXN`;
+            }).join('\n');
 
-CLABE: 721180100034025723
+            const envioLine = shippingCost > 0
+                ? `$${shippingCost.toLocaleString()} MXN (CP: ${cpText})`
+                : `Pendiente / Entrega local (CP: ${cpText})`;
 
-Realiza tu transferencia y si tienes dudas escríbenos por el botón de WhatsApp.`);
-                return;
-            }
+            const msg = [
+                `Hola *Arencross-shopstore*, quiero confirmar mi pedido:`,
+                ``,
+                `*Productos:*`,
+                itemsLines,
+                ``,
+                `*Subtotal:* $${sub.toLocaleString()} MXN`,
+                `*Envío estimado:* ${envioLine}`,
+                `*Total a pagar:* $${tot.toLocaleString()} MXN`,
+                `*Método de pago:* ${metodoTexto}`,
+                ``,
+                `Por favor envíame los datos para realizar el pago y mi ficha de confirmación.`
+            ].join('\n');
 
-            // Punto listo para conectar tu endpoint de Stripe (Tarjeta / OXXO) cuando actives las llaves
-            if (window.STRIPE_CHECKOUT_ENDPOINT) {
-                fetch(window.STRIPE_CHECKOUT_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: cart, shippingCost, paymentMethod: selectedPaymentMethod })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    if (data.url) window.location.href = data.url;
-                    else alert(data.error || "No se pudo iniciar el pago.");
-                })
-                .catch(() => alert("Error de conexión con la pasarela de pagos."));
-                return;
-            }
-
-            const metodoTexto = selectedPaymentMethod === 'oxxo' ? 'Código de pago OXXO' : 'Pago con Tarjeta';
-            alert(`${metodoTexto} por $${tot.toLocaleString()} MXN.
-
-La pasarela en línea (Stripe) está lista para conectarse en cuanto actives tu cuenta en modo producción.`);
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
         };
     </script>
 </body>
