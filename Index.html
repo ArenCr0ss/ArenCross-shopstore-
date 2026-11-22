@@ -331,14 +331,87 @@
         const db = getFirestore(app);
         const productsCol = collection(db, "productos");
         const packageConfigDoc = doc(db, "config", "paquetes_camisas");
+        const CART_STORAGE_KEY = "arencross_shopstore_cart_v1";
+
+        function loadPersistedCart() {
+            try {
+                const raw = localStorage.getItem(CART_STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function savePersistedCart(items) {
+            try {
+                localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+            } catch (e) {}
+        }
+
+        function updateCartBadgeCount() {
+            const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+            const badge = document.getElementById('cart-count');
+            if (badge) badge.innerText = totalQty;
+        }
 
         let products = [];
-        let cart = [], currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
+        let cart = loadPersistedCart(), currentCategory = 'todos', selectedPaymentMethod = 'tarjeta', shippingCost = 0;
         let currentModalProductId = null;
         let currentModalSelectedSize = '';
         let currentGalleryImages = [];
         let currentGalleryIndex = 0;
         let isFullscreenZoomed = false;
+        let handlingPopState = false;
+
+        updateCartBadgeCount();
+
+        if (!history.state || !history.state.arencrossBase) {
+            history.replaceState({ arencrossBase: true, view: 'home', cat: 'todos' }, '', '');
+        }
+
+        function pushNavState(viewName, extra = {}) {
+            if (handlingPopState) return;
+            try {
+                history.pushState({ arencrossBase: true, view: viewName, ...extra }, '', '');
+            } catch (e) {}
+        }
+
+        window.addEventListener('popstate', () => {
+            handlingPopState = true;
+            try {
+                const fsModal = document.getElementById('fullscreen-image-modal');
+                if (fsModal && !fsModal.classList.contains('hidden')) {
+                    closeFullscreenImage();
+                    return;
+                }
+                const prodModal = document.getElementById('product-modal');
+                if (prodModal && !prodModal.classList.contains('hidden')) {
+                    closeProductModal();
+                    return;
+                }
+                const cartModal = document.getElementById('cart-modal');
+                if (cartModal && !cartModal.classList.contains('hidden')) {
+                    cartModal.classList.add('hidden');
+                    return;
+                }
+                const pkgModal = document.getElementById('package-editor-modal');
+                if (pkgModal && !pkgModal.classList.contains('hidden')) {
+                    closePackageEditorModal();
+                    return;
+                }
+                const adminModal = document.getElementById('admin-modal');
+                if (adminModal && !adminModal.classList.contains('hidden')) {
+                    closeAdminPanel();
+                    return;
+                }
+                if (currentCategory !== 'todos') {
+                    filterCategory('todos', true);
+                }
+            } finally {
+                handlingPopState = false;
+            }
+        });
 
         const WHATSAPP_NUMBER = '15756548307';
         const ADMIN_PIN = '1234';
@@ -436,6 +509,7 @@
             document.getElementById('pkg-wa-btn-input').value = document.getElementById('pkg-wa-btn-text').innerText.trim();
 
             document.getElementById('package-editor-modal').classList.remove('hidden');
+            pushNavState('package-editor');
         };
 
         window.closePackageEditorModal = function() {
@@ -564,7 +638,8 @@
             });
         };
 
-        window.filterCategory = function(cat) {
+        window.filterCategory = function(cat, fromPopState = false) {
+            const prevCat = currentCategory;
             currentCategory = cat;
             document.getElementById('current-category-title').innerText = cat === 'todos' ? 'Catálogo Exclusivo' : cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -574,6 +649,9 @@
                     : 'cat-btn hover:text-brand-pink py-0.5 px-2';
             });
             applyCurrentFilter();
+            if (!fromPopState && prevCat === 'todos' && cat !== 'todos') {
+                pushNavState('category', { cat });
+            }
         };
 
         window.searchProducts = function() {
@@ -608,6 +686,7 @@
         window.openAdminPanel = function() {
             document.getElementById('admin-modal').classList.remove('hidden');
             renderAdminList();
+            pushNavState('admin');
         };
 
         window.closeAdminPanel = function() {
@@ -837,6 +916,7 @@
                 </div>
             `;
             document.getElementById('product-modal').classList.remove('hidden');
+            pushNavState('product', { prodId: id });
         };
 
         window.selectModalGalleryImage = function(idx) {
@@ -904,9 +984,10 @@
 
         window.openFullscreenImage = function(startIndex = currentGalleryIndex) {
             if (!currentGalleryImages.length) return;
+            const fsModal = document.getElementById('fullscreen-image-modal');
+            const alreadyOpen = fsModal && !fsModal.classList.contains('hidden');
             currentGalleryIndex = startIndex;
             resetFullscreenZoomState();
-            const modal = document.getElementById('fullscreen-image-modal');
             const imgEl = document.getElementById('fullscreen-img-element');
             const counterEl = document.getElementById('fullscreen-img-counter');
             const thumbsEl = document.getElementById('fullscreen-thumbs');
@@ -921,7 +1002,8 @@
                 </button>
             `).join('');
 
-            modal.classList.remove('hidden');
+            fsModal.classList.remove('hidden');
+            if (!alreadyOpen) pushNavState('fullscreen-image', { idx: startIndex });
         };
 
         window.closeFullscreenImage = function() {
@@ -935,8 +1017,12 @@
 
         window.toggleCart = function() {
             const m = document.getElementById('cart-modal');
+            const wasHidden = m.classList.contains('hidden');
             m.classList.toggle('hidden');
-            if (!m.classList.contains('hidden')) renderCartItems();
+            if (!m.classList.contains('hidden')) {
+                renderCartItems();
+                if (wasHidden) pushNavState('cart');
+            }
         };
 
         window.addToCart = function(id, selectedSize = '') {
@@ -965,7 +1051,8 @@
                     qty: 1
                 });
             }
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            savePersistedCart(cart);
+            updateCartBadgeCount();
         };
 
         window.renderCartItems = function() {
@@ -1012,8 +1099,9 @@
 
         window.removeFromCart = function(cartKey) {
             cart = cart.filter(i => i.cartKey !== cartKey);
+            savePersistedCart(cart);
             renderCartItems();
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            updateCartBadgeCount();
         };
 
         window.calculateShipping = function() {
